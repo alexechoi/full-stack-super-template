@@ -11,14 +11,9 @@ const __dirname = dirname(__filename);
 
 const eslintConfig = defineConfig([
   ...expoConfig,
-  globalIgnores([
-    "out/**",
-    "build/**",
-    "node_modules/**",
-    "*.config.js",
-    "**/scripts/reset-project.js",
-  ]),
+  globalIgnores(["out/**", "build/**", "node_modules/**", "*.config.js"]),
   {
+    files: ["**/*.{ts,tsx}"],
     plugins: {
       "simple-import-sort": simpleImportSort,
       "@typescript-eslint": typescriptEslint,
