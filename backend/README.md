@@ -11,8 +11,7 @@ uv sync
 ## Run
 
 ```bash
-uv run fastapi dev
+uv run main
 ```
 
-Server runs at http://localhost:8000. API docs at `/docs`.
-
+Server runs at http://localhost:8000.
