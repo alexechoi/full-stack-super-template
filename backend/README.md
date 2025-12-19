@@ -14,4 +14,12 @@ uv sync
 uv run main
 ```
 
+## Format
+
+We have a check to ensure the code is formatted consistently
+
+```bash
+uv run ruff format
+```
+
 Server runs at http://localhost:8000.
