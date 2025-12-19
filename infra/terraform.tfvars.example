@@ -1,0 +1,24 @@
+# Example Terraform Variables
+# Copy this file to terraform.tfvars and fill in your values
+
+# Required: GCP Project Configuration
+project_id      = "your-project-id"
+project_name    = "Your Project Name"
+region          = "us-central1"
+billing_account = "XXXXXX-XXXXXX-XXXXXX"
+
+# Required: GitHub Repository (for Workload Identity Federation)
+github_repo = "your-org/your-repo"
+
+# Optional: Google OAuth for Firebase Auth
+# Get these from Google Cloud Console > APIs & Services > Credentials
+oauth_client_id     = ""
+oauth_client_secret = ""
+
+# Optional: Apple Sign-In for Firebase Auth
+# Get these from Apple Developer Console
+apple_team_id     = ""
+apple_key_id      = ""
+apple_private_key = ""
+apple_bundle_id   = ""
+
