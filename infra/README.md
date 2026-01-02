@@ -32,16 +32,45 @@ terraform output -json firebase_config | jq -r '
   "NEXT_PUBLIC_FIREBASE_APP_ID=\(.app_id)"
 ' > ../frontend/.env.local
 
-# 5. Configure GitHub Actions secrets
+# 5. Get Firebase config for Expo app (if configured)
+# For iOS: Download GoogleService-Info.plist
+terraform output -json firebase_ios_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/GoogleService-Info.plist
+
+# For Android: Download google-services.json
+terraform output -json firebase_android_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/google-services.json
+
+# 6. Configure GitHub Actions secrets
 terraform output workload_identity_provider  # → GCP_WORKLOAD_IDENTITY_PROVIDER secret
 terraform output github_actions_service_account  # → GCP_SERVICE_ACCOUNT secret
 ```
+
+## Mobile App Configuration (Optional)
+
+To enable Firebase for the Expo mobile app, set these variables in `terraform.tfvars`:
+
+```hcl
+expo_ios_bundle_id        = "com.yourcompany.expoapp"
+expo_android_package_name = "com.yourcompany.expoapp"
+```
+
+After running `terraform apply`, download the Firebase config files:
+
+```bash
+# iOS: GoogleService-Info.plist
+terraform output -json firebase_ios_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/GoogleService-Info.plist
+
+# Android: google-services.json
+terraform output -json firebase_android_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/google-services.json
+```
+
+Then run `npm run prebuild` in the expo-app directory to generate native projects.
 
 ## What Gets Created
 
 - GCP Project with Firebase, Firestore, Cloud Run, Artifact Registry
 - Cloud Run services for backend & frontend (placeholder images initially)
 - GitHub Actions Workload Identity for keyless CI/CD
+- Firebase iOS and Android apps (optional, for Expo mobile app)
 
 ## Next Steps
 

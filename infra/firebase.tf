@@ -149,3 +149,53 @@ data "google_firebase_web_app_config" "default" {
   depends_on = [google_firebase_web_app.default]
 }
 
+# Create Firebase iOS App (for Expo)
+resource "google_firebase_apple_app" "expo" {
+  provider = google-beta
+  count    = var.expo_ios_bundle_id != "" ? 1 : 0
+
+  project      = google_project.default.project_id
+  display_name = "Expo iOS App"
+  bundle_id    = var.expo_ios_bundle_id
+
+  deletion_policy = "DELETE"
+
+  depends_on = [google_firebase_project.default]
+}
+
+# Get Firebase iOS App configuration
+data "google_firebase_apple_app_config" "expo" {
+  provider = google-beta
+  count    = var.expo_ios_bundle_id != "" ? 1 : 0
+
+  project    = google_project.default.project_id
+  app_id     = google_firebase_apple_app.expo[0].app_id
+
+  depends_on = [google_firebase_apple_app.expo]
+}
+
+# Create Firebase Android App (for Expo)
+resource "google_firebase_android_app" "expo" {
+  provider = google-beta
+  count    = var.expo_android_package_name != "" ? 1 : 0
+
+  project      = google_project.default.project_id
+  display_name = "Expo Android App"
+  package_name = var.expo_android_package_name
+
+  deletion_policy = "DELETE"
+
+  depends_on = [google_firebase_project.default]
+}
+
+# Get Firebase Android App configuration
+data "google_firebase_android_app_config" "expo" {
+  provider = google-beta
+  count    = var.expo_android_package_name != "" ? 1 : 0
+
+  project    = google_project.default.project_id
+  app_id     = google_firebase_android_app.expo[0].app_id
+
+  depends_on = [google_firebase_android_app.expo]
+}
+

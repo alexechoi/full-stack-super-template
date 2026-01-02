@@ -66,3 +66,16 @@ variable "apple_bundle_id" {
   default     = ""
 }
 
+# Expo Mobile App Configuration
+variable "expo_ios_bundle_id" {
+  description = "iOS Bundle ID for the Expo app (e.g., com.yourcompany.expoapp)"
+  type        = string
+  default     = ""
+}
+
+variable "expo_android_package_name" {
+  description = "Android Package Name for the Expo app (e.g., com.yourcompany.expoapp)"
+  type        = string
+  default     = ""
+}
+

@@ -53,3 +53,35 @@ output "firebase_config" {
   sensitive = true
 }
 
+# Firebase iOS App Configuration (for Expo)
+output "firebase_ios_config" {
+  description = "Firebase configuration for iOS app (GoogleService-Info.plist content)"
+  value = var.expo_ios_bundle_id != "" ? {
+    app_id              = google_firebase_apple_app.expo[0].app_id
+    bundle_id           = var.expo_ios_bundle_id
+    project_id          = var.project_id
+    api_key             = data.google_firebase_web_app_config.default.api_key
+    storage_bucket      = data.google_firebase_web_app_config.default.storage_bucket
+    messaging_sender_id = data.google_firebase_web_app_config.default.messaging_sender_id
+    config_filename     = data.google_firebase_apple_app_config.expo[0].config_filename
+    config_file_contents = data.google_firebase_apple_app_config.expo[0].config_file_contents
+  } : null
+  sensitive = true
+}
+
+# Firebase Android App Configuration (for Expo)
+output "firebase_android_config" {
+  description = "Firebase configuration for Android app (google-services.json content)"
+  value = var.expo_android_package_name != "" ? {
+    app_id              = google_firebase_android_app.expo[0].app_id
+    package_name        = var.expo_android_package_name
+    project_id          = var.project_id
+    api_key             = data.google_firebase_web_app_config.default.api_key
+    storage_bucket      = data.google_firebase_web_app_config.default.storage_bucket
+    messaging_sender_id = data.google_firebase_web_app_config.default.messaging_sender_id
+    config_filename     = data.google_firebase_android_app_config.expo[0].config_filename
+    config_file_contents = data.google_firebase_android_app_config.expo[0].config_file_contents
+  } : null
+  sensitive = true
+}
+

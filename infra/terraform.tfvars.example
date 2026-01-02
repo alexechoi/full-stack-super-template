@@ -22,3 +22,8 @@ apple_key_id      = ""
 apple_private_key = ""
 apple_bundle_id   = ""
 
+# Optional: Expo Mobile App Configuration
+# These create Firebase iOS and Android apps for the Expo app
+# Use reverse domain notation (e.g., com.yourcompany.expoapp)
+expo_ios_bundle_id        = ""
+expo_android_package_name = ""
