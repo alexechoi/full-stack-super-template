@@ -86,7 +86,7 @@ From the frontend or mobile app, include the Firebase ID token in the Authorizat
 
 ```typescript
 // Frontend/Expo-app example using the api.ts helper
-import { apiGet } from '@/lib/api';
+import { apiGet } from "@/lib/api";
 
-const userData = await apiGet('/me');
+const userData = await apiGet("/me");
 ```

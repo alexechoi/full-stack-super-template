@@ -20,7 +20,7 @@ Usage:
 import logging
 from typing import Annotated
 
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
 
 from firebase_service import get_firebase_service
 
@@ -117,5 +117,5 @@ async def get_optional_firebase_user(
 
 
 # Type alias for cleaner dependency injection
-FirebaseUser = Annotated[dict, get_firebase_user]
-OptionalFirebaseUser = Annotated[dict | None, get_optional_firebase_user]
+FirebaseUser = Annotated[dict, Depends(get_firebase_user)]
+OptionalFirebaseUser = Annotated[dict | None, Depends(get_optional_firebase_user)]
