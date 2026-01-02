@@ -1,9 +1,9 @@
-import { Redirect } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { useAuth } from "@/app/components/AuthProvider";
 
-export default function Index() {
+export default function AppLayout() {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -14,12 +14,19 @@ export default function Index() {
     );
   }
 
-  // Redirect based on auth state
-  if (user) {
-    return <Redirect href="/(app)" />;
+  if (!user) {
+    return <Redirect href="/(auth)/login" />;
   }
 
-  return <Redirect href="/(auth)/login" />;
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: "#09090b" },
+        headerTintColor: "#fafafa",
+        contentStyle: { backgroundColor: "#09090b" },
+      }}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
@@ -30,3 +37,4 @@ const styles = StyleSheet.create({
     backgroundColor: "#09090b",
   },
 });
+
