@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from auth import FirebaseUser, OptionalFirebaseUser
 from firebase_service import auto_initialize
+from notifications import router as notifications_router
 
 # Load environment variables from .env file
 load_dotenv()
@@ -40,6 +41,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(notifications_router)
 
 
 # ============================================================================
