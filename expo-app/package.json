@@ -27,6 +27,7 @@
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "expo": "~54.0.30",
+    "expo-build-properties": "^1.0.10",
     "expo-constants": "~18.0.12",
     "expo-dev-client": "^6.0.20",
     "expo-font": "~14.0.10",
