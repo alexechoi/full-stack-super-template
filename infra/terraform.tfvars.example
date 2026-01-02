@@ -27,3 +27,7 @@ apple_bundle_id   = ""
 # Use reverse domain notation (e.g., com.yourcompany.expoapp)
 expo_ios_bundle_id        = ""
 expo_android_package_name = ""
+
+# Optional: Web Push Notifications
+# Get VAPID key from Firebase Console: Project Settings > Cloud Messaging > Web Push certificates
+fcm_vapid_key = ""

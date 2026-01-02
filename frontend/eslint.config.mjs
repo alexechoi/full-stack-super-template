@@ -27,6 +27,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "node_modules/**",
     "*.config.mjs",
+    // Service worker is plain JS, not part of TypeScript build
+    "public/firebase-messaging-sw.js",
   ]),
   {
     plugins: {

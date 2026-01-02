@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 
 import { useAuth } from "@/app/components/AuthProvider";
 import { ProtectedRoute } from "@/app/components/ProtectedRoute";
-import { apiGet } from "@/app/lib/api";
+import { usePushNotifications } from "@/app/components/PushNotificationProvider";
+import { apiGet, apiPost } from "@/app/lib/api";
 import { signOut } from "@/app/lib/firebase/auth";
 import { getUserDocument } from "@/app/lib/firebase/firestore";
 
@@ -24,12 +25,22 @@ interface ApiTestResult {
 function DashboardContent() {
   const { user } = useAuth();
   const router = useRouter();
+  const {
+    isSupported: notificationsSupported,
+    permission: notificationPermission,
+    isEnabled: notificationsEnabled,
+    enableNotifications,
+  } = usePushNotifications();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiTestResult, setApiTestResult] = useState<ApiTestResult | null>(
     null,
   );
   const [apiTestLoading, setApiTestLoading] = useState(false);
+  const [notificationLoading, setNotificationLoading] = useState(false);
+  const [testNotificationResult, setTestNotificationResult] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -135,6 +146,91 @@ function DashboardContent() {
                     {user?.uid}
                   </div>
                 </div>
+              </div>
+
+              {/* Push Notifications Section */}
+              <div className="mt-8 rounded-lg border border-zinc-200 p-6 dark:border-zinc-800">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                  Push Notifications
+                </h3>
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  Enable browser notifications to receive updates
+                </p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-4">
+                  {!notificationsSupported ? (
+                    <p className="text-sm text-amber-600 dark:text-amber-400">
+                      Push notifications are not supported in this browser
+                    </p>
+                  ) : notificationsEnabled ? (
+                    <>
+                      <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                        <span className="h-2 w-2 rounded-full bg-green-500" />
+                        Notifications Enabled
+                      </span>
+                      <button
+                        onClick={async () => {
+                          setNotificationLoading(true);
+                          setTestNotificationResult(null);
+                          try {
+                            const result = await apiPost("/notifications/test");
+                            setTestNotificationResult(
+                              `✓ ${(result as { message?: string }).message || "Test notification sent!"}`,
+                            );
+                          } catch (err) {
+                            setTestNotificationResult(
+                              `✗ ${err instanceof Error ? err.message : "Failed to send"}`,
+                            );
+                          } finally {
+                            setNotificationLoading(false);
+                          }
+                        }}
+                        disabled={notificationLoading}
+                        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                      >
+                        {notificationLoading
+                          ? "Sending..."
+                          : "Send Test Notification"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                        Permission: {notificationPermission || "unknown"}
+                      </span>
+                      <button
+                        onClick={async () => {
+                          setNotificationLoading(true);
+                          const success = await enableNotifications();
+                          setNotificationLoading(false);
+                          if (!success) {
+                            setTestNotificationResult(
+                              "✗ Failed to enable notifications. Check console for details.",
+                            );
+                          }
+                        }}
+                        disabled={notificationLoading}
+                        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                      >
+                        {notificationLoading
+                          ? "Enabling..."
+                          : "Enable Notifications"}
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {testNotificationResult && (
+                  <div
+                    className={`mt-4 rounded-lg p-3 text-sm ${
+                      testNotificationResult.startsWith("✓")
+                        ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200"
+                        : "bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-200"
+                    }`}
+                  >
+                    {testNotificationResult}
+                  </div>
+                )}
               </div>
 
               {/* API Test Section */}

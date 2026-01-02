@@ -74,3 +74,43 @@ resource "google_secret_manager_secret_iam_member" "cloudrun_firebase_secret" {
   depends_on = [google_secret_manager_secret.firebase_service_account]
 }
 
+# =============================================================================
+# FCM VAPID Key for Web Push Notifications
+# =============================================================================
+
+# Store VAPID key in Secret Manager (only if provided)
+resource "google_secret_manager_secret" "fcm_vapid_key" {
+  provider = google-beta
+  count    = var.fcm_vapid_key != "" ? 1 : 0
+
+  project   = google_project.default.project_id
+  secret_id = "fcm-vapid-key"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secretmanager]
+}
+
+resource "google_secret_manager_secret_version" "fcm_vapid_key" {
+  provider = google-beta
+  count    = var.fcm_vapid_key != "" ? 1 : 0
+
+  secret      = google_secret_manager_secret.fcm_vapid_key[0].id
+  secret_data = var.fcm_vapid_key
+}
+
+# Grant Cloud Run access to VAPID key secret
+resource "google_secret_manager_secret_iam_member" "cloudrun_vapid_key" {
+  provider = google-beta
+  count    = var.fcm_vapid_key != "" ? 1 : 0
+
+  project   = google_project.default.project_id
+  secret_id = google_secret_manager_secret.fcm_vapid_key[0].secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloudrun.email}"
+
+  depends_on = [google_secret_manager_secret.fcm_vapid_key]
+}
+
