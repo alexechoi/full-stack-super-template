@@ -7,10 +7,10 @@
 
 // Import Firebase scripts for service worker
 importScripts(
-  "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"
+  "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js",
 );
 importScripts(
-  "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"
+  "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js",
 );
 
 // Firebase messaging instance - will be initialized when config is received
@@ -30,7 +30,7 @@ function initializeFirebase(config) {
     messaging.onBackgroundMessage((payload) => {
       console.log(
         "[firebase-messaging-sw.js] Background message received:",
-        payload
+        payload,
       );
 
       const notificationTitle =
@@ -44,7 +44,7 @@ function initializeFirebase(config) {
 
       self.registration.showNotification(
         notificationTitle,
-        notificationOptions
+        notificationOptions,
       );
     });
 
@@ -101,6 +101,6 @@ self.addEventListener("notificationclick", (event) => {
         if (clients.openWindow) {
           return clients.openWindow("/");
         }
-      })
+      }),
   );
 });
