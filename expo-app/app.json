@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "expoapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.yourcompany.expoapp",
@@ -48,7 +47,13 @@
         "expo-build-properties",
         {
           "ios": {
-            "useFrameworks": "static"
+            "useFrameworks": "static",
+            "deploymentTarget": "15.1",
+            "buildReactNativeFromSource": true
+          },
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35
           }
         }
       ]
