@@ -131,3 +131,15 @@ resource "google_project_service" "secretmanager" {
   depends_on = [google_project_service.serviceusage]
 }
 
+# Enable Firebase Cloud Messaging API
+resource "google_project_service" "fcm" {
+  provider = google-beta
+
+  project = google_project.default.project_id
+  service = "fcm.googleapis.com"
+
+  disable_on_destroy = false
+
+  depends_on = [google_project_service.serviceusage]
+}
+
