@@ -85,3 +85,17 @@ output "firebase_android_config" {
   sensitive = true
 }
 
+# Firebase Admin SDK Service Account
+# Use this to save the service account JSON locally for development:
+# terraform output -raw firebase_service_account_json > ../backend/firebase-service-account.json
+output "firebase_service_account_json" {
+  description = "Firebase Admin SDK service account JSON for local development"
+  value       = base64decode(google_service_account_key.firebase_admin.private_key)
+  sensitive   = true
+}
+
+output "firebase_service_account_email" {
+  description = "Firebase Admin SDK service account email"
+  value       = google_service_account.firebase_admin.email
+}
+

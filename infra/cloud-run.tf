@@ -50,6 +50,24 @@ resource "google_cloud_run_v2_service" "backend" {
         value = "production"
       }
 
+      # CORS allowed origins - set after deployment via CI/CD or manually
+      # The frontend URL will be: https://frontend-<hash>-<region>.a.run.app
+      env {
+        name  = "ALLOWED_ORIGINS"
+        value = "http://localhost:3000,http://localhost:8081"
+      }
+
+      # Firebase service account credentials from Secret Manager
+      env {
+        name = "FIREBASE_SERVICE_ACCOUNT_JSON"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.firebase_service_account.secret_id
+            version = "latest"
+          }
+        }
+      }
+
       # Startup probe
       startup_probe {
         http_get {
@@ -80,11 +98,15 @@ resource "google_cloud_run_v2_service" "backend" {
   depends_on = [
     google_project_service.cloudrun,
     google_artifact_registry_repository.docker,
+    google_secret_manager_secret_version.firebase_service_account,
+    google_secret_manager_secret_iam_member.cloudrun_firebase_secret,
   ]
 
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      # Allow ALLOWED_ORIGINS to be updated independently
+      template[0].containers[0].env,
     ]
   }
 }
