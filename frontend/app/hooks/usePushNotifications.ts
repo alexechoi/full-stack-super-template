@@ -10,7 +10,7 @@
  * - Foreground message handling
  */
 
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/app/components/AuthProvider";
 import {
@@ -88,81 +88,23 @@ export function usePushNotifications(
     autoRequestPermission = false,
   } = options;
 
-  // Track the current token
-  const currentTokenRef = useRef<string | null>(null);
+  // Use state for token so it triggers re-renders
+  const [token, setToken] = useState<string | null>(null);
   const previousUserRef = useRef<string | null>(null);
 
-  // Check if supported
-  const isSupported = isPushNotificationSupported();
-
-  // Get current permission
+  // Compute these synchronously
+  const isSupported =
+    typeof window !== "undefined" ? isPushNotificationSupported() : false;
   const permission =
     typeof window !== "undefined" && "Notification" in window
       ? Notification.permission
       : null;
 
   // Request permission
-  const requestPermission = useCallback(async (): Promise<boolean> => {
+  async function requestPermission(): Promise<boolean> {
     if (!isSupported) return false;
     return requestNotificationPermission();
-  }, [isSupported]);
-
-  // Handle token registration
-  const registerToken = useCallback(
-    async (uid: string) => {
-      if (!isSupported) return;
-
-      try {
-        // Check/request permission
-        if (Notification.permission !== "granted") {
-          if (autoRequestPermission) {
-            const granted = await requestNotificationPermission();
-            if (!granted) {
-              console.log("Notification permission not granted");
-              return;
-            }
-          } else {
-            console.log(
-              "Notification permission not granted, skipping registration",
-            );
-            return;
-          }
-        }
-
-        // Get FCM token
-        const token = await getFCMToken(vapidKey);
-        if (!token) {
-          console.log("Could not get FCM token");
-          return;
-        }
-
-        // Store token reference
-        currentTokenRef.current = token;
-
-        // Register with Firestore
-        await registerDeviceToken(uid, token);
-        console.log("Web push notifications initialized");
-      } catch (error) {
-        console.error("Error initializing web push notifications:", error);
-      }
-    },
-    [isSupported, vapidKey, autoRequestPermission],
-  );
-
-  // Handle token cleanup
-  const unregisterToken = useCallback(async (uid: string) => {
-    try {
-      const token = currentTokenRef.current;
-      if (token) {
-        await unregisterDeviceToken(uid, token);
-        currentTokenRef.current = null;
-      }
-      await deleteFCMToken();
-      console.log("Web push notifications cleaned up");
-    } catch (error) {
-      console.error("Error cleaning up web push notifications:", error);
-    }
-  }, []);
+  }
 
   // Handle auth state changes
   useEffect(() => {
@@ -171,16 +113,65 @@ export function usePushNotifications(
 
     // User logged in
     if (currentUid && !previousUid) {
-      registerToken(currentUid);
+      // Register token
+      (async () => {
+        if (!isSupported) return;
+
+        try {
+          // Check/request permission
+          if (Notification.permission !== "granted") {
+            if (autoRequestPermission) {
+              const granted = await requestNotificationPermission();
+              if (!granted) {
+                console.log("Notification permission not granted");
+                return;
+              }
+            } else {
+              console.log(
+                "Notification permission not granted, skipping registration",
+              );
+              return;
+            }
+          }
+
+          // Get FCM token
+          const fcmToken = await getFCMToken(vapidKey);
+          if (!fcmToken) {
+            console.log("Could not get FCM token");
+            return;
+          }
+
+          // Register with Firestore
+          await registerDeviceToken(currentUid, fcmToken);
+          setToken(fcmToken);
+          console.log("Web push notifications initialized");
+        } catch (error) {
+          console.error("Error initializing web push notifications:", error);
+        }
+      })();
     }
 
     // User logged out
     if (!currentUid && previousUid) {
-      unregisterToken(previousUid);
+      // Unregister token
+      (async () => {
+        try {
+          // Get current token from state via closure
+          const currentToken = token;
+          if (currentToken) {
+            await unregisterDeviceToken(previousUid, currentToken);
+          }
+          await deleteFCMToken();
+          setToken(null);
+          console.log("Web push notifications cleaned up");
+        } catch (error) {
+          console.error("Error cleaning up web push notifications:", error);
+        }
+      })();
     }
 
     previousUserRef.current = currentUid;
-  }, [user?.uid, registerToken, unregisterToken]);
+  }, [user?.uid, isSupported, vapidKey, autoRequestPermission, token]);
 
   // Handle foreground messages
   useEffect(() => {
@@ -210,6 +201,6 @@ export function usePushNotifications(
     isSupported,
     permission,
     requestPermission,
-    token: currentTokenRef.current,
+    token,
   };
 }

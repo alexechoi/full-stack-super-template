@@ -9,10 +9,11 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
-  useState,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
 } from "react";
 
 import {
@@ -33,29 +34,10 @@ import {
 import { useAuth } from "./AuthProvider";
 
 interface PushNotificationContextType {
-  /**
-   * Whether push notifications are supported
-   */
   isSupported: boolean;
-
-  /**
-   * Current permission status
-   */
   permission: NotificationPermission | null;
-
-  /**
-   * Whether notifications are enabled (permission granted + token registered)
-   */
   isEnabled: boolean;
-
-  /**
-   * Request permission and enable notifications
-   */
   enableNotifications: () => Promise<boolean>;
-
-  /**
-   * Disable notifications (unregister token)
-   */
   disableNotifications: () => Promise<void>;
 }
 
@@ -71,16 +53,27 @@ export function usePushNotifications() {
   return useContext(PushNotificationContext);
 }
 
+// Simple external store for token state to avoid effect setState issues
+function createTokenStore() {
+  let token: string | null = null;
+  const listeners = new Set<() => void>();
+
+  return {
+    getToken: () => token,
+    setToken: (newToken: string | null) => {
+      token = newToken;
+      listeners.forEach((l) => l());
+    },
+    subscribe: (listener: () => void) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+  };
+}
+
 interface PushNotificationProviderProps {
   children: React.ReactNode;
-  /**
-   * VAPID key from Firebase Console
-   * Get it from: Project Settings > Cloud Messaging > Web Push certificates
-   */
   vapidKey?: string;
-  /**
-   * Callback when a notification is received in the foreground
-   */
   onNotificationReceived?: (notification: NotificationData) => void;
 }
 
@@ -90,103 +83,118 @@ export function PushNotificationProvider({
   onNotificationReceived,
 }: PushNotificationProviderProps) {
   const { user } = useAuth();
-  const [isSupported, setIsSupported] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission | null>(
-    null,
-  );
-  const [token, setToken] = useState<string | null>(null);
-  const [previousUserId, setPreviousUserId] = useState<string | null>(null);
+  const previousUserIdRef = useRef<string | null>(null);
 
-  // Check browser support on mount
-  useEffect(() => {
-    setIsSupported(isPushNotificationSupported());
-    setPermission(getNotificationPermission());
-  }, []);
+  // Use a stable token store
+  const tokenStore = useMemo(() => createTokenStore(), []);
+  const token = useSyncExternalStore(
+    tokenStore.subscribe,
+    tokenStore.getToken,
+    () => null,
+  );
+
+  // Compute these synchronously
+  const isSupported =
+    typeof window !== "undefined" ? isPushNotificationSupported() : false;
+  const permission =
+    typeof window !== "undefined" ? getNotificationPermission() : null;
 
   // Enable notifications
-  const enableNotifications = useCallback(async (): Promise<boolean> => {
-    if (!isSupported || !vapidKey || !user?.uid) {
+  async function enableNotifications(): Promise<boolean> {
+    const userId = user?.uid;
+    if (!isSupported || !vapidKey || !userId) {
       console.warn("Cannot enable notifications:", {
         isSupported,
         hasVapidKey: !!vapidKey,
-        hasUser: !!user?.uid,
+        hasUser: !!userId,
       });
       return false;
     }
 
     try {
-      // Request permission
       const granted = await requestNotificationPermission();
-      setPermission(Notification.permission);
+      if (!granted) return false;
 
-      if (!granted) {
-        return false;
-      }
-
-      // Get FCM token
       const fcmToken = await getFCMToken(vapidKey);
       if (!fcmToken) {
         console.error("Failed to get FCM token");
         return false;
       }
 
-      // Register token in Firestore
-      await registerDeviceToken(user.uid, fcmToken);
-      setToken(fcmToken);
-
+      await registerDeviceToken(userId, fcmToken);
+      tokenStore.setToken(fcmToken);
       console.log("Push notifications enabled");
       return true;
     } catch (error) {
       console.error("Error enabling notifications:", error);
       return false;
     }
-  }, [isSupported, vapidKey, user?.uid]);
+  }
 
   // Disable notifications
-  const disableNotifications = useCallback(async (): Promise<void> => {
-    if (!user?.uid || !token) return;
+  async function disableNotifications(): Promise<void> {
+    const userId = user?.uid;
+    const currentToken = tokenStore.getToken();
+    if (!userId || !currentToken) return;
 
     try {
-      await unregisterDeviceToken(user.uid, token);
+      await unregisterDeviceToken(userId, currentToken);
       await deleteFCMToken();
-      setToken(null);
+      tokenStore.setToken(null);
       console.log("Push notifications disabled");
     } catch (error) {
       console.error("Error disabling notifications:", error);
     }
-  }, [user?.uid, token]);
+  }
 
-  // Handle auth state changes
+  // Handle user logout - cleanup tokens
   useEffect(() => {
     const currentUserId = user?.uid ?? null;
+    const previousUserId = previousUserIdRef.current;
+    const currentToken = tokenStore.getToken();
 
-    // User logged out - cleanup
-    if (!currentUserId && previousUserId && token) {
-      unregisterDeviceToken(previousUserId, token).catch(console.error);
-      deleteFCMToken().catch(console.error);
-      setToken(null);
+    if (!currentUserId && previousUserId && currentToken) {
+      Promise.all([
+        unregisterDeviceToken(previousUserId, currentToken),
+        deleteFCMToken(),
+      ])
+        .then(() => tokenStore.setToken(null))
+        .catch(console.error);
     }
 
-    // Auto-register if user logs in and permission already granted
+    previousUserIdRef.current = currentUserId;
+  }, [user?.uid, tokenStore]);
+
+  // Auto-register on login if permission already granted
+  useEffect(() => {
+    const currentUserId = user?.uid;
+    const currentToken = tokenStore.getToken();
+
     if (
       currentUserId &&
-      !previousUserId &&
       permission === "granted" &&
       vapidKey &&
-      !token
+      !currentToken &&
+      isSupported
     ) {
-      enableNotifications().catch(console.error);
-    }
+      // Call enable asynchronously
+      (async () => {
+        try {
+          const granted = await requestNotificationPermission();
+          if (!granted) return;
 
-    setPreviousUserId(currentUserId);
-  }, [
-    user?.uid,
-    previousUserId,
-    permission,
-    vapidKey,
-    token,
-    enableNotifications,
-  ]);
+          const fcmToken = await getFCMToken(vapidKey);
+          if (!fcmToken) return;
+
+          await registerDeviceToken(currentUserId, fcmToken);
+          tokenStore.setToken(fcmToken);
+          console.log("Push notifications auto-enabled");
+        } catch (error) {
+          console.error("Error auto-enabling notifications:", error);
+        }
+      })();
+    }
+  }, [user?.uid, permission, vapidKey, isSupported, tokenStore]);
 
   // Handle foreground messages
   useEffect(() => {
@@ -195,14 +203,12 @@ export function PushNotificationProvider({
     const unsubscribe = onForegroundMessage((notification) => {
       console.log("Foreground notification:", notification);
 
-      // Show browser notification
       if (notification.title) {
         showNotification(notification.title, {
           body: notification.body,
         });
       }
 
-      // Call custom handler
       onNotificationReceived?.(notification);
     });
 
