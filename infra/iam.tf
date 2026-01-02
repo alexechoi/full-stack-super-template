@@ -77,7 +77,10 @@ resource "google_iam_workload_identity_pool" "github" {
   display_name              = "GitHub Actions Pool"
   description               = "Workload Identity Pool for GitHub Actions"
 
-  depends_on = [google_project_service.iamcredentials]
+  depends_on = [
+    google_project_service.iamcredentials,
+    google_project_service.iam,
+  ]
 }
 
 # Workload Identity Pool Provider for GitHub

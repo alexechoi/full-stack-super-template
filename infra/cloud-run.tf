@@ -14,6 +14,8 @@ resource "google_cloud_run_v2_service" "backend" {
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
+  deletion_protection = false
+
   template {
     service_account = google_service_account.cloudrun.email
 
@@ -23,7 +25,9 @@ resource "google_cloud_run_v2_service" "backend" {
     }
 
     containers {
-      image = "${local.docker_registry}/backend:latest"
+      # Using placeholder image for initial deployment
+      # Real image will be deployed via CI/CD and ignored by lifecycle block
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
 
       ports {
         container_port = 8000
@@ -94,6 +98,8 @@ resource "google_cloud_run_v2_service" "frontend" {
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
+  deletion_protection = false
+
   template {
     service_account = google_service_account.cloudrun.email
 
@@ -103,7 +109,9 @@ resource "google_cloud_run_v2_service" "frontend" {
     }
 
     containers {
-      image = "${local.docker_registry}/frontend:latest"
+      # Using placeholder image for initial deployment
+      # Real image will be deployed via CI/CD and ignored by lifecycle block
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
 
       ports {
         container_port = 3000
