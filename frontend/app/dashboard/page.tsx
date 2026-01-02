@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { useAuth } from "@/app/components/AuthProvider";
 import { ProtectedRoute } from "@/app/components/ProtectedRoute";
+import { apiGet } from "@/app/lib/api";
 import { signOut } from "@/app/lib/firebase/auth";
 import { getUserDocument } from "@/app/lib/firebase/firestore";
 
@@ -14,11 +15,21 @@ interface UserData {
   email: string;
 }
 
+interface ApiTestResult {
+  success: boolean;
+  data?: unknown;
+  error?: string;
+}
+
 function DashboardContent() {
   const { user } = useAuth();
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [apiTestResult, setApiTestResult] = useState<ApiTestResult | null>(
+    null
+  );
+  const [apiTestLoading, setApiTestLoading] = useState(false);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -37,6 +48,23 @@ function DashboardContent() {
 
     fetchUserData();
   }, [user]);
+
+  async function handleTestProtectedRoute() {
+    setApiTestLoading(true);
+    setApiTestResult(null);
+
+    try {
+      const data = await apiGet("/me");
+      setApiTestResult({ success: true, data });
+    } catch (err) {
+      setApiTestResult({
+        success: false,
+        error: err instanceof Error ? err.message : "Unknown error",
+      });
+    } finally {
+      setApiTestLoading(false);
+    }
+  }
 
   async function handleSignOut() {
     try {
@@ -107,6 +135,57 @@ function DashboardContent() {
                     {user?.uid}
                   </div>
                 </div>
+              </div>
+
+              {/* API Test Section */}
+              <div className="mt-8 rounded-lg border border-zinc-200 p-6 dark:border-zinc-800">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                  Backend API Test
+                </h3>
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  Test the protected /me endpoint with your Firebase token
+                </p>
+
+                <button
+                  onClick={handleTestProtectedRoute}
+                  disabled={apiTestLoading}
+                  className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {apiTestLoading ? "Testing..." : "Test Protected Route"}
+                </button>
+
+                {apiTestResult && (
+                  <div
+                    className={`mt-4 rounded-lg p-4 ${
+                      apiTestResult.success
+                        ? "bg-green-50 dark:bg-green-900/20"
+                        : "bg-red-50 dark:bg-red-900/20"
+                    }`}
+                  >
+                    <div
+                      className={`text-sm font-medium ${
+                        apiTestResult.success
+                          ? "text-green-800 dark:text-green-200"
+                          : "text-red-800 dark:text-red-200"
+                      }`}
+                    >
+                      {apiTestResult.success ? "✓ Success" : "✗ Failed"}
+                    </div>
+                    <pre
+                      className={`mt-2 overflow-auto text-xs ${
+                        apiTestResult.success
+                          ? "text-green-700 dark:text-green-300"
+                          : "text-red-700 dark:text-red-300"
+                      }`}
+                    >
+                      {JSON.stringify(
+                        apiTestResult.data || apiTestResult.error,
+                        null,
+                        2
+                      )}
+                    </pre>
+                  </div>
+                )}
               </div>
             </>
           )}
