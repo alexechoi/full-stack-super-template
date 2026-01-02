@@ -1,4 +1,4 @@
-import { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import { onAuthStateChanged } from "@/app/lib/firebase/auth";

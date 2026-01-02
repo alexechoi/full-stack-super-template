@@ -1,6 +1,5 @@
-import firestore, {
-  FirebaseFirestoreTypes,
-} from "@react-native-firebase/firestore";
+import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
+import firestore from "@react-native-firebase/firestore";
 
 export interface UserDocument {
   firstName: string;

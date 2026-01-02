@@ -1,4 +1,5 @@
-import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import auth from "@react-native-firebase/auth";
 
 /**
  * Sign up a new user with email and password

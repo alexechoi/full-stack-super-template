@@ -17,14 +17,14 @@ export default function HomeScreen() {
       <View style={styles.content}>
         <Text style={styles.title}>Welcome!</Text>
         <Text style={styles.subtitle}>
-          You're signed in as {user?.email || "Unknown"}
+          You&apos;re signed in as {user?.email || "Unknown"}
         </Text>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Dashboard</Text>
           <Text style={styles.cardText}>
             This is your authenticated home screen. You can customize this to
-            show your app's main content.
+            show your app&apos;s main content.
           </Text>
         </View>
 
