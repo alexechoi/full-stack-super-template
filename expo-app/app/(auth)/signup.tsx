@@ -63,7 +63,7 @@ export default function SignupScreen() {
     try {
       const userCredential = await signUpWithEmail(
         formData.email,
-        formData.password
+        formData.password,
       );
 
       // Create user document in Firestore
@@ -227,8 +227,7 @@ export default function SignupScreen() {
                   )}
                 </View>
                 <Text style={styles.checkboxLabel}>
-                  I agree to the{" "}
-                  <Text style={styles.link}>Privacy Policy</Text>
+                  I agree to the <Text style={styles.link}>Privacy Policy</Text>
                 </Text>
               </Pressable>
 
@@ -426,4 +425,3 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
-

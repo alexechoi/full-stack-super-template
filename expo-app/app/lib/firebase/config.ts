@@ -14,4 +14,3 @@ export const firebaseFirestore = firestore;
 
 // Export commonly used references
 export const db = firestore();
-

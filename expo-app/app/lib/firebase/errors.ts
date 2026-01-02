@@ -54,4 +54,3 @@ export function getFirebaseErrorMessage(error: unknown): string {
   // Return the original message if no match found
   return message;
 }
-

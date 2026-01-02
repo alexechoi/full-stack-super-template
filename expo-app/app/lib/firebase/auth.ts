@@ -5,7 +5,7 @@ import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
  */
 export async function signUpWithEmail(
   email: string,
-  password: string
+  password: string,
 ): Promise<FirebaseAuthTypes.UserCredential> {
   return auth().createUserWithEmailAndPassword(email, password);
 }
@@ -15,7 +15,7 @@ export async function signUpWithEmail(
  */
 export async function signInWithEmail(
   email: string,
-  password: string
+  password: string,
 ): Promise<FirebaseAuthTypes.UserCredential> {
   return auth().signInWithEmailAndPassword(email, password);
 }
@@ -38,8 +38,7 @@ export function getCurrentUser(): FirebaseAuthTypes.User | null {
  * Subscribe to auth state changes
  */
 export function onAuthStateChanged(
-  callback: (user: FirebaseAuthTypes.User | null) => void
+  callback: (user: FirebaseAuthTypes.User | null) => void,
 ): () => void {
   return auth().onAuthStateChanged(callback);
 }
-

@@ -103,4 +103,3 @@ const styles = StyleSheet.create({
     color: "#fafafa",
   },
 });
-

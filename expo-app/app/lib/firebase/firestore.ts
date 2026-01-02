@@ -1,4 +1,6 @@
-import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
+import firestore, {
+  FirebaseFirestoreTypes,
+} from "@react-native-firebase/firestore";
 
 export interface UserDocument {
   firstName: string;
@@ -23,7 +25,7 @@ export async function createUserDocument(
     email: string;
     phoneNumber: string;
     acceptedMarketing: boolean;
-  }
+  },
 ): Promise<void> {
   const userDoc: UserDocument = {
     firstName: data.firstName,
@@ -55,9 +57,8 @@ export async function updateLastLogin(uid: string): Promise<void> {
  * Get a user document from Firestore
  */
 export async function getUserDocument(
-  uid: string
+  uid: string,
 ): Promise<UserDocument | null> {
   const docSnap = await firestore().collection("users").doc(uid).get();
   return docSnap.exists ? (docSnap.data() as UserDocument) : null;
 }
-
