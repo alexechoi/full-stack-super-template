@@ -15,7 +15,6 @@ import {
   useState,
 } from "react";
 
-import { useAuth } from "./AuthProvider";
 import {
   deleteFCMToken,
   getFCMToken,
@@ -30,6 +29,8 @@ import {
   registerDeviceToken,
   unregisterDeviceToken,
 } from "@/app/lib/firebase/notifications";
+
+import { useAuth } from "./AuthProvider";
 
 interface PushNotificationContextType {
   /**

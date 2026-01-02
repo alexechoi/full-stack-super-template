@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/app/components/AuthProvider";
-import { usePushNotifications } from "@/app/components/PushNotificationProvider";
 import { ProtectedRoute } from "@/app/components/ProtectedRoute";
+import { usePushNotifications } from "@/app/components/PushNotificationProvider";
 import { apiGet, apiPost } from "@/app/lib/api";
 import { signOut } from "@/app/lib/firebase/auth";
 import { getUserDocument } from "@/app/lib/firebase/firestore";

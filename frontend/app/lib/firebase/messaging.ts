@@ -5,8 +5,8 @@
  * token management, and foreground message handling.
  */
 
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import type { MessagePayload, Messaging } from "firebase/messaging";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 import app from "./config";
 
