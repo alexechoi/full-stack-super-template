@@ -6,11 +6,26 @@ export interface UserDocument {
   lastName: string;
   email: string;
   phoneNumber: string;
+  ipSignup: string;
+  ipLastLogin: string;
   createdAt: FirebaseFirestoreTypes.FieldValue;
   updatedAt: FirebaseFirestoreTypes.FieldValue;
   acceptedMarketingAt: FirebaseFirestoreTypes.FieldValue | null;
   acceptedPrivacyPolicyAt: FirebaseFirestoreTypes.FieldValue;
   acceptedTermsAt: FirebaseFirestoreTypes.FieldValue;
+}
+
+/**
+ * Get the client's public IP address
+ */
+export async function getClientIP(): Promise<string> {
+  try {
+    const response = await fetch("https://api.ipify.org?format=json");
+    const data = await response.json();
+    return data.ip;
+  } catch {
+    return "unknown";
+  }
 }
 
 /**
@@ -26,11 +41,15 @@ export async function createUserDocument(
     acceptedMarketing: boolean;
   },
 ): Promise<void> {
+  const ip = await getClientIP();
+
   const userDoc: UserDocument = {
     firstName: data.firstName,
     lastName: data.lastName,
     email: data.email,
     phoneNumber: data.phoneNumber,
+    ipSignup: ip,
+    ipLastLogin: ip,
     createdAt: firestore.FieldValue.serverTimestamp(),
     updatedAt: firestore.FieldValue.serverTimestamp(),
     acceptedMarketingAt: data.acceptedMarketing
@@ -44,10 +63,13 @@ export async function createUserDocument(
 }
 
 /**
- * Update the last login timestamp for a user
+ * Update the last login IP for a user
  */
-export async function updateLastLogin(uid: string): Promise<void> {
+export async function updateLastLoginIP(uid: string): Promise<void> {
+  const ip = await getClientIP();
+
   await firestore().collection("users").doc(uid).update({
+    ipLastLogin: ip,
     updatedAt: firestore.FieldValue.serverTimestamp(),
   });
 }

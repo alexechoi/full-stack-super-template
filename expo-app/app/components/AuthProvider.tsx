@@ -2,7 +2,7 @@ import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import { onAuthStateChanged } from "@/app/lib/firebase/auth";
-import { updateLastLogin } from "@/app/lib/firebase/firestore";
+import { updateLastLoginIP } from "@/app/lib/firebase/firestore";
 
 interface AuthContextType {
   user: FirebaseAuthTypes.User | null;
@@ -27,10 +27,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(user);
       setLoading(false);
 
-      // Update last login when user signs in
+      // Update last login IP when user signs in
       if (user) {
         try {
-          await updateLastLogin(user.uid);
+          await updateLastLoginIP(user.uid);
         } catch {
           // User doc might not exist yet (during signup flow)
         }
