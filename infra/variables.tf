@@ -79,3 +79,11 @@ variable "expo_android_package_name" {
   default     = ""
 }
 
+# Push Notifications Configuration
+variable "fcm_vapid_key" {
+  description = "Firebase Cloud Messaging VAPID key for web push notifications. Generate in Firebase Console: Project Settings > Cloud Messaging > Web Push certificates"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+

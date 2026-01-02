@@ -181,6 +181,15 @@ resource "google_cloud_run_v2_service" "frontend" {
         value = google_firebase_web_app.default.app_id
       }
 
+      # FCM VAPID key for web push notifications (optional)
+      dynamic "env" {
+        for_each = var.fcm_vapid_key != "" ? [1] : []
+        content {
+          name  = "NEXT_PUBLIC_FIREBASE_VAPID_KEY"
+          value = var.fcm_vapid_key
+        }
+      }
+
       # Startup probe
       startup_probe {
         http_get {

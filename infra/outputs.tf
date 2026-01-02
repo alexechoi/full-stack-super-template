@@ -49,6 +49,7 @@ output "firebase_config" {
     storage_bucket      = data.google_firebase_web_app_config.default.storage_bucket
     messaging_sender_id = data.google_firebase_web_app_config.default.messaging_sender_id
     app_id              = google_firebase_web_app.default.app_id
+    vapid_key           = var.fcm_vapid_key != "" ? var.fcm_vapid_key : null
   }
   sensitive = true
 }
