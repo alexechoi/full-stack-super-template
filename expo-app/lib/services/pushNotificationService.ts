@@ -60,6 +60,24 @@ export async function checkNotificationPermission(): Promise<boolean> {
 }
 
 /**
+ * Register the device for remote messages.
+ * Required on iOS before getting the FCM token.
+ * On Android, this is a no-op as registration is automatic.
+ */
+export async function registerForRemoteMessages(): Promise<boolean> {
+  try {
+    if (!messaging().isDeviceRegisteredForRemoteMessages) {
+      await messaging().registerDeviceForRemoteMessages();
+      console.log("Device registered for remote messages");
+    }
+    return true;
+  } catch (error) {
+    console.error("Error registering for remote messages:", error);
+    return false;
+  }
+}
+
+/**
  * Get the FCM device token.
  * This token is used to send notifications to this specific device.
  *
@@ -71,6 +89,13 @@ export async function getFCMToken(): Promise<string | null> {
     const hasPermission = await checkNotificationPermission();
     if (!hasPermission) {
       console.log("No notification permission, cannot get FCM token");
+      return null;
+    }
+
+    // iOS requires explicit registration for remote messages
+    const registered = await registerForRemoteMessages();
+    if (!registered) {
+      console.log("Failed to register for remote messages");
       return null;
     }
 
