@@ -39,7 +39,10 @@ terraform output -json firebase_ios_config | jq -r '.config_file_contents' | bas
 # For Android: Download google-services.json
 terraform output -json firebase_android_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/google-services.json
 
-# 6. Configure GitHub Actions secrets
+# 6. Get Firebase Admin SDK credentials for backend (local development)
+terraform output -raw firebase_service_account_json > ../backend/firebase-service-account.json
+
+# 7. Configure GitHub Actions secrets
 terraform output workload_identity_provider  # → GCP_WORKLOAD_IDENTITY_PROVIDER secret
 terraform output github_actions_service_account  # → GCP_SERVICE_ACCOUNT secret
 ```
@@ -65,12 +68,41 @@ terraform output -json firebase_android_config | jq -r '.config_file_contents' |
 
 Then run `npm run prebuild` in the expo-app directory to generate native projects.
 
+## Backend Authentication Setup
+
+The backend uses Firebase Admin SDK to verify authentication tokens. Terraform automatically:
+
+1. Creates a dedicated `firebase-admin-sdk` service account with `firebaseauth.admin` role
+2. Generates a service account key and stores it in Secret Manager
+3. Configures Cloud Run to inject the credentials via `FIREBASE_SERVICE_ACCOUNT_JSON` environment variable
+
+### For Local Development
+
+Download the service account credentials:
+
+```bash
+terraform output -raw firebase_service_account_json > ../backend/firebase-service-account.json
+```
+
+Then set the environment variable before running the backend:
+
+```bash
+cd backend
+export GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
+uv run python main.py
+```
+
+### For Production (Cloud Run)
+
+No manual configuration needed. The backend container automatically receives the Firebase credentials from Secret Manager at runtime.
+
 ## What Gets Created
 
 - GCP Project with Firebase, Firestore, Cloud Run, Artifact Registry
 - Cloud Run services for backend & frontend (placeholder images initially)
 - GitHub Actions Workload Identity for keyless CI/CD
 - Firebase iOS and Android apps (optional, for Expo mobile app)
+- Firebase Admin SDK service account with credentials in Secret Manager
 
 ## Next Steps
 
