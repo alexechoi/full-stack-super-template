@@ -17,7 +17,7 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000";
  * @returns The ID token or null if not authenticated
  */
 export async function getAuthToken(
-  forceRefresh = false,
+  forceRefresh = false
 ): Promise<string | null> {
   const user = auth.currentUser;
   if (!user) {
@@ -43,7 +43,7 @@ export async function getAuthToken(
  */
 export async function apiRequest(
   endpoint: string,
-  options: RequestInit = {},
+  options: RequestInit = {}
 ): Promise<Response> {
   const token = await getAuthToken();
 
@@ -80,7 +80,7 @@ export async function apiGet<T = unknown>(endpoint: string): Promise<T> {
       .json()
       .catch(() => ({ detail: "Request failed" }));
     throw new Error(
-      error.detail || `Request failed with status ${response.status}`,
+      error.detail || `Request failed with status ${response.status}`
     );
   }
 
@@ -96,7 +96,7 @@ export async function apiGet<T = unknown>(endpoint: string): Promise<T> {
  */
 export async function apiPost<T = unknown>(
   endpoint: string,
-  data?: unknown,
+  data?: unknown
 ): Promise<T> {
   const response = await apiRequest(endpoint, {
     method: "POST",
@@ -108,7 +108,7 @@ export async function apiPost<T = unknown>(
       .json()
       .catch(() => ({ detail: "Request failed" }));
     throw new Error(
-      error.detail || `Request failed with status ${response.status}`,
+      error.detail || `Request failed with status ${response.status}`
     );
   }
 
@@ -124,7 +124,7 @@ export async function apiPost<T = unknown>(
  */
 export async function apiPut<T = unknown>(
   endpoint: string,
-  data?: unknown,
+  data?: unknown
 ): Promise<T> {
   const response = await apiRequest(endpoint, {
     method: "PUT",
@@ -136,7 +136,7 @@ export async function apiPut<T = unknown>(
       .json()
       .catch(() => ({ detail: "Request failed" }));
     throw new Error(
-      error.detail || `Request failed with status ${response.status}`,
+      error.detail || `Request failed with status ${response.status}`
     );
   }
 
@@ -157,7 +157,7 @@ export async function apiDelete<T = unknown>(endpoint: string): Promise<T> {
       .json()
       .catch(() => ({ detail: "Request failed" }));
     throw new Error(
-      error.detail || `Request failed with status ${response.status}`,
+      error.detail || `Request failed with status ${response.status}`
     );
   }
 

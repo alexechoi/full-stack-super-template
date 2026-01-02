@@ -27,7 +27,7 @@ function DashboardContent() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiTestResult, setApiTestResult] = useState<ApiTestResult | null>(
-    null
+    null,
   );
   const [apiTestLoading, setApiTestLoading] = useState(false);
 
@@ -181,7 +181,7 @@ function DashboardContent() {
                       {JSON.stringify(
                         apiTestResult.data || apiTestResult.error,
                         null,
-                        2
+                        2,
                       )}
                     </pre>
                   </div>
