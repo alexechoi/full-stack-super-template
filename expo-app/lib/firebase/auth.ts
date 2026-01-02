@@ -1,5 +1,12 @@
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged as firebaseOnAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+} from "@react-native-firebase/auth";
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
-import auth from "@react-native-firebase/auth";
+
+import { auth } from "./config";
 
 /**
  * Sign up a new user with email and password
@@ -8,7 +15,7 @@ export async function signUpWithEmail(
   email: string,
   password: string,
 ): Promise<FirebaseAuthTypes.UserCredential> {
-  return auth().createUserWithEmailAndPassword(email, password);
+  return createUserWithEmailAndPassword(auth, email, password);
 }
 
 /**
@@ -18,21 +25,21 @@ export async function signInWithEmail(
   email: string,
   password: string,
 ): Promise<FirebaseAuthTypes.UserCredential> {
-  return auth().signInWithEmailAndPassword(email, password);
+  return signInWithEmailAndPassword(auth, email, password);
 }
 
 /**
  * Sign out the current user
  */
 export async function signOut(): Promise<void> {
-  return auth().signOut();
+  return firebaseSignOut(auth);
 }
 
 /**
  * Get the current authenticated user
  */
 export function getCurrentUser(): FirebaseAuthTypes.User | null {
-  return auth().currentUser;
+  return auth.currentUser;
 }
 
 /**
@@ -41,5 +48,5 @@ export function getCurrentUser(): FirebaseAuthTypes.User | null {
 export function onAuthStateChanged(
   callback: (user: FirebaseAuthTypes.User | null) => void,
 ): () => void {
-  return auth().onAuthStateChanged(callback);
+  return firebaseOnAuthStateChanged(auth, callback);
 }

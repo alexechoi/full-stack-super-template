@@ -2,7 +2,7 @@ import { Slot } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View } from "react-native";
 
-import { AuthProvider } from "@/app/components/AuthProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export default function RootLayout() {
   return (

@@ -1,8 +1,8 @@
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { onAuthStateChanged } from "@/app/lib/firebase/auth";
-import { updateLastLoginIP } from "@/app/lib/firebase/firestore";
+import { onAuthStateChanged } from "@/lib/firebase/auth";
+import { updateLastLoginIP } from "@/lib/firebase/firestore";
 
 interface AuthContextType {
   user: FirebaseAuthTypes.User | null;

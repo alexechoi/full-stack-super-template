@@ -12,9 +12,9 @@ import {
   View,
 } from "react-native";
 
-import { signUpWithEmail } from "@/app/lib/firebase/auth";
-import { getFirebaseErrorMessage } from "@/app/lib/firebase/errors";
-import { createUserDocument } from "@/app/lib/firebase/firestore";
+import { signUpWithEmail } from "@/lib/firebase/auth";
+import { getFirebaseErrorMessage } from "@/lib/firebase/errors";
+import { createUserDocument } from "@/lib/firebase/firestore";
 
 export default function SignupScreen() {
   const [formData, setFormData] = useState({

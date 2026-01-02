@@ -1,8 +1,8 @@
 import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { useAuth } from "@/app/components/AuthProvider";
-import { signOut } from "@/app/lib/firebase/auth";
+import { useAuth } from "@/components/AuthProvider";
+import { signOut } from "@/lib/firebase/auth";
 
 export default function HomeScreen() {
   const { user } = useAuth();

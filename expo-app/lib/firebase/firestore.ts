@@ -1,5 +1,14 @@
+import {
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "@react-native-firebase/firestore";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import firestore from "@react-native-firebase/firestore";
+
+import { db } from "./config";
 
 export interface UserDocument {
   firstName: string;
@@ -43,23 +52,22 @@ export async function createUserDocument(
 ): Promise<void> {
   const ip = await getClientIP();
 
-  const userDoc: UserDocument = {
+  const userDoc = {
     firstName: data.firstName,
     lastName: data.lastName,
     email: data.email,
     phoneNumber: data.phoneNumber,
     ipSignup: ip,
     ipLastLogin: ip,
-    createdAt: firestore.FieldValue.serverTimestamp(),
-    updatedAt: firestore.FieldValue.serverTimestamp(),
-    acceptedMarketingAt: data.acceptedMarketing
-      ? firestore.FieldValue.serverTimestamp()
-      : null,
-    acceptedPrivacyPolicyAt: firestore.FieldValue.serverTimestamp(),
-    acceptedTermsAt: firestore.FieldValue.serverTimestamp(),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    acceptedMarketingAt: data.acceptedMarketing ? serverTimestamp() : null,
+    acceptedPrivacyPolicyAt: serverTimestamp(),
+    acceptedTermsAt: serverTimestamp(),
   };
 
-  await firestore().collection("users").doc(uid).set(userDoc);
+  const userRef = doc(collection(db, "users"), uid);
+  await setDoc(userRef, userDoc);
 }
 
 /**
@@ -68,9 +76,10 @@ export async function createUserDocument(
 export async function updateLastLoginIP(uid: string): Promise<void> {
   const ip = await getClientIP();
 
-  await firestore().collection("users").doc(uid).update({
+  const userRef = doc(collection(db, "users"), uid);
+  await updateDoc(userRef, {
     ipLastLogin: ip,
-    updatedAt: firestore.FieldValue.serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 }
 
@@ -80,6 +89,7 @@ export async function updateLastLoginIP(uid: string): Promise<void> {
 export async function getUserDocument(
   uid: string,
 ): Promise<UserDocument | null> {
-  const docSnap = await firestore().collection("users").doc(uid).get();
+  const userRef = doc(collection(db, "users"), uid);
+  const docSnap = await getDoc(userRef);
   return docSnap.exists() ? (docSnap.data() as UserDocument) : null;
 }

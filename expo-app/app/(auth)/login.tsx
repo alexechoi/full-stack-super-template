@@ -12,8 +12,8 @@ import {
   View,
 } from "react-native";
 
-import { signInWithEmail } from "@/app/lib/firebase/auth";
-import { getFirebaseErrorMessage } from "@/app/lib/firebase/errors";
+import { signInWithEmail } from "@/lib/firebase/auth";
+import { getFirebaseErrorMessage } from "@/lib/firebase/errors";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
