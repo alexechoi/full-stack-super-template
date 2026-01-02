@@ -95,6 +95,18 @@ resource "google_project_service" "iamcredentials" {
   depends_on = [google_project_service.serviceusage]
 }
 
+# Enable IAM API (for Workload Identity Pool)
+resource "google_project_service" "iam" {
+  provider = google-beta
+
+  project = google_project.default.project_id
+  service = "iam.googleapis.com"
+
+  disable_on_destroy = false
+
+  depends_on = [google_project_service.serviceusage]
+}
+
 # Enable Cloud Resource Manager API
 resource "google_project_service" "cloudresourcemanager" {
   provider = google-beta
