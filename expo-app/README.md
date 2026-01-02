@@ -1,6 +1,21 @@
-# Welcome to your Expo app 👋
+# Expo App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+React Native mobile app with Firebase Authentication, built with Expo.
+
+## Prerequisites
+
+Before running the app, you need Firebase configuration files from Terraform:
+
+```bash
+# From the infra/ directory, after running terraform apply:
+cd ../infra
+
+# Download iOS config
+terraform output -json firebase_ios_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/GoogleService-Info.plist
+
+# Download Android config
+terraform output -json firebase_android_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/google-services.json
+```
 
 ## Get started
 
@@ -10,30 +25,42 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Generate native projects (required for Firebase)
 
    ```bash
-   npx expo start
+   npm run prebuild
    ```
 
-In the output, you'll find options to open the app in a
+3. Run the app
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```bash
+   # iOS (requires macOS with Xcode)
+   npm run ios
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+   # Android (requires Android Studio)
+   npm run android
+   ```
 
-## Get a fresh project
+## Project Structure
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+app/
+├── (auth)/           # Auth screens (login, signup)
+├── (app)/            # Protected screens (requires auth)
+├── components/       # Shared components (AuthProvider)
+├── lib/firebase/     # Firebase utilities
+│   ├── config.ts     # Firebase initialization
+│   ├── auth.ts       # Auth functions
+│   ├── firestore.ts  # Firestore utilities
+│   └── errors.ts     # Error message helpers
+└── _layout.tsx       # Root layout with AuthProvider
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Development with Expo Go (Limited)
+
+Note: Firebase native modules require a development build. Expo Go won't work with this setup.
+
+For development without Firebase, you can use `npm run ios:dev` or `npm run android:dev` with Expo Go, but auth features will not work.
 
 ## Learn more
 
