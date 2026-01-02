@@ -4,12 +4,12 @@ A starter template with frontend, backend, mobile app, and GCP infrastructure.
 
 ## Components
 
-| Directory | Description |
-|-----------|-------------|
-| `frontend/` | Next.js 16 + React 19 + Tailwind CSS |
-| `backend/` | FastAPI + Python 3.13 (managed with uv) |
-| `expo-app/` | Expo 54 + React Native mobile app |
-| `infra/` | Terraform configs for GCP (Cloud Run, Firebase, Artifact Registry) |
+| Directory   | Description                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| `frontend/` | Next.js 16 + React 19 + Tailwind CSS                               |
+| `backend/`  | FastAPI + Python 3.13 (managed with uv)                            |
+| `expo-app/` | Expo 54 + React Native mobile app                                  |
+| `infra/`    | Terraform configs for GCP (Cloud Run, Firebase, Artifact Registry) |
 
 ## Quickstart
 
@@ -64,7 +64,61 @@ GitHub Actions workflows in `.github/workflows/`:
 
 Requires GitHub secrets/variables configured per [`infra/README.md`](./infra/README.md#cicd-integration).
 
-## Push Notifications (iOS APNs Setup)
+## Push Notifications
+
+Push notifications are supported on all platforms: iOS, Android, and Web browsers.
+
+### Web Push Notifications (Frontend)
+
+Web push uses Firebase Cloud Messaging and works in Chrome, Firefox, Edge, and Safari 16+.
+
+#### Step 1: Get VAPID Key
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project
+3. Go to **Project Settings** > **Cloud Messaging** tab
+4. Scroll to **Web Push certificates**
+5. Click **Generate key pair** (or copy existing)
+6. Add the key to your configuration:
+
+**For local development** - add to `frontend/.env.local`:
+
+```bash
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=your-vapid-key-here
+```
+
+**For production** - add to `infra/terraform.tfvars`:
+
+```hcl
+fcm_vapid_key = "your-vapid-key-here"
+```
+
+Then run `terraform apply` - the key will be automatically set as an environment variable on Cloud Run.
+
+The service worker automatically receives the Firebase config from your environment variables - no manual configuration needed.
+
+#### Step 2: Enable Notifications in Your App
+
+Use the `usePushNotifications` hook in any component:
+
+```tsx
+import { usePushNotifications } from "@/app/components/PushNotificationProvider";
+
+function MyComponent() {
+  const { isSupported, permission, isEnabled, enableNotifications } =
+    usePushNotifications();
+
+  if (!isSupported) return <p>Push notifications not supported</p>;
+
+  return (
+    <button onClick={enableNotifications} disabled={isEnabled}>
+      {isEnabled ? "Notifications Enabled" : "Enable Notifications"}
+    </button>
+  );
+}
+```
+
+### iOS Push Notifications (APNs Setup)
 
 Push notifications require additional setup for iOS. Android works out of the box with the `google-services.json` file.
 
