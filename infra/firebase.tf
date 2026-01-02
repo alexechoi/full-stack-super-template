@@ -32,6 +32,40 @@ resource "google_firestore_database" "default" {
   ]
 }
 
+# Firestore Security Rules
+# Users can read/write their own document at /users/{userId}
+# All other access is denied by default
+
+locals {
+  firestore_rules = "service cloud.firestore { match /databases/{database}/documents { match /users/{userId} { allow read, write: if request.auth != null && request.auth.uid == userId; } match /{document=**} { allow read, write: if false; } } }"
+}
+
+resource "google_firebaserules_ruleset" "firestore" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  source {
+    files {
+      content = local.firestore_rules
+      name    = "firestore.rules"
+    }
+  }
+
+  depends_on = [google_firestore_database.default]
+}
+
+resource "google_firebaserules_release" "firestore" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name         = "cloud.firestore"
+  ruleset_name = "projects/${google_project.default.project_id}/rulesets/${google_firebaserules_ruleset.firestore.name}"
+
+  lifecycle {
+    replace_triggered_by = [google_firebaserules_ruleset.firestore]
+  }
+}
+
 # Configure Identity Platform (Firebase Auth)
 resource "google_identity_platform_config" "default" {
   provider = google-beta
