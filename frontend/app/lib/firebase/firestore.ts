@@ -40,7 +40,7 @@ export async function createUserDocument(
     email: string;
     phoneNumber: string;
     acceptedMarketing: boolean;
-  }
+  },
 ): Promise<void> {
   const ip = await getClientIP();
 

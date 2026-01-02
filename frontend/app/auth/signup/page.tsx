@@ -9,6 +9,7 @@ import {
   signInWithGoogle,
   signUpWithEmail,
 } from "@/app/lib/firebase/auth";
+import { getFirebaseErrorMessage } from "@/app/lib/firebase/errors";
 import { createUserDocument } from "@/app/lib/firebase/firestore";
 
 export default function SignupPage() {
@@ -57,18 +58,23 @@ export default function SignupPage() {
         formData.password,
       );
 
-      await createUserDocument(userCredential.user.uid, {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        acceptedMarketing: formData.acceptedMarketing,
-      });
+      // Create user document in Firestore
+      try {
+        await createUserDocument(userCredential.user.uid, {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          acceptedMarketing: formData.acceptedMarketing,
+        });
+      } catch (firestoreErr) {
+        // Log Firestore error but continue to dashboard
+        console.error("Failed to create user document:", firestoreErr);
+      }
 
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create account");
-    } finally {
+      setError(getFirebaseErrorMessage(err));
       setLoading(false);
     }
   }
@@ -92,20 +98,21 @@ export default function SignupPage() {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "";
 
-      await createUserDocument(user.uid, {
-        firstName,
-        lastName,
-        email: user.email || "",
-        phoneNumber: user.phoneNumber || "",
-        acceptedMarketing: formData.acceptedMarketing,
-      });
+      try {
+        await createUserDocument(user.uid, {
+          firstName,
+          lastName,
+          email: user.email || "",
+          phoneNumber: user.phoneNumber || "",
+          acceptedMarketing: formData.acceptedMarketing,
+        });
+      } catch (firestoreErr) {
+        console.error("Failed to create user document:", firestoreErr);
+      }
 
       router.push("/dashboard");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to sign up with Google",
-      );
-    } finally {
+      setError(getFirebaseErrorMessage(err));
       setLoading(false);
     }
   }
@@ -129,20 +136,21 @@ export default function SignupPage() {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "";
 
-      await createUserDocument(user.uid, {
-        firstName,
-        lastName,
-        email: user.email || "",
-        phoneNumber: user.phoneNumber || "",
-        acceptedMarketing: formData.acceptedMarketing,
-      });
+      try {
+        await createUserDocument(user.uid, {
+          firstName,
+          lastName,
+          email: user.email || "",
+          phoneNumber: user.phoneNumber || "",
+          acceptedMarketing: formData.acceptedMarketing,
+        });
+      } catch (firestoreErr) {
+        console.error("Failed to create user document:", firestoreErr);
+      }
 
       router.push("/dashboard");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to sign up with Apple",
-      );
-    } finally {
+      setError(getFirebaseErrorMessage(err));
       setLoading(false);
     }
   }

@@ -21,14 +21,14 @@ export interface SignUpData {
 
 export async function signUpWithEmail(
   email: string,
-  password: string
+  password: string,
 ): Promise<UserCredential> {
   return createUserWithEmailAndPassword(auth, email, password);
 }
 
 export async function signInWithEmail(
   email: string,
-  password: string
+  password: string,
 ): Promise<UserCredential> {
   return signInWithEmailAndPassword(auth, email, password);
 }

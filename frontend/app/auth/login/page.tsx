@@ -9,6 +9,7 @@ import {
   signInWithEmail,
   signInWithGoogle,
 } from "@/app/lib/firebase/auth";
+import { getFirebaseErrorMessage } from "@/app/lib/firebase/errors";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function LoginPage() {
       await signInWithEmail(email, password);
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sign in");
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -40,9 +41,7 @@ export default function LoginPage() {
       await signInWithGoogle();
       router.push("/dashboard");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to sign in with Google",
-      );
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -56,9 +55,7 @@ export default function LoginPage() {
       await signInWithApple();
       router.push("/dashboard");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to sign in with Apple",
-      );
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
