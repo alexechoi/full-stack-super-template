@@ -96,10 +96,68 @@ uv run python main.py
 
 No manual configuration needed. The backend container automatically receives the Firebase credentials from Secret Manager at runtime.
 
+## Frontend Deployment Platforms
+
+By default, both backend and frontend deploy to Google Cloud Run. You can optionally deploy the frontend to **Vercel** or **Netlify** instead.
+
+### Option 1: Cloud Run (Default)
+
+No additional configuration needed. This is the default.
+
+```hcl
+frontend_platform = "cloudrun"
+```
+
+### Option 2: Vercel
+
+1. Get a Vercel API token from [vercel.com/account/tokens](https://vercel.com/account/tokens)
+2. Find your org/team ID in Vercel dashboard settings
+3. Configure in `terraform.tfvars`:
+
+```hcl
+frontend_platform = "vercel"
+vercel_api_token  = "your-vercel-token"
+vercel_org_id     = "your-org-id"  # Optional, for team deployments
+```
+
+Terraform will:
+
+- Create a Vercel project linked to your GitHub repo
+- Set all Firebase environment variables automatically
+- Inject the Firebase service account for API route authentication
+
+### Option 3: Netlify
+
+1. Get a Netlify access token from [app.netlify.com/user/applications](https://app.netlify.com/user/applications#personal-access-tokens)
+2. Configure in `terraform.tfvars`:
+
+```hcl
+frontend_platform = "netlify"
+netlify_token     = "your-netlify-token"
+```
+
+Terraform will:
+
+- Create a Netlify site linked to your GitHub repo
+- Set all Firebase environment variables automatically
+- Inject the Firebase service account for API route authentication
+
+### Environment Variables
+
+Regardless of platform, Terraform automatically configures these environment variables:
+
+| Variable                         | Description                                 |
+| -------------------------------- | ------------------------------------------- |
+| `NEXT_PUBLIC_FIREBASE_*`         | Firebase client configuration               |
+| `NEXT_PUBLIC_API_URL`            | Backend API URL (Cloud Run)                 |
+| `FIREBASE_SERVICE_ACCOUNT_JSON`  | Firebase Admin credentials for API routes   |
+| `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Push notification VAPID key (if configured) |
+
 ## What Gets Created
 
 - GCP Project with Firebase, Firestore, Cloud Run, Artifact Registry
-- Cloud Run services for backend & frontend (placeholder images initially)
+- Cloud Run backend service
+- Frontend on Cloud Run, Vercel, or Netlify (based on `frontend_platform`)
 - GitHub Actions Workload Identity for keyless CI/CD
 - Firebase iOS and Android apps (optional, for Expo mobile app)
 - Firebase Admin SDK service account with credentials in Secret Manager

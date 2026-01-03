@@ -112,7 +112,9 @@ resource "google_cloud_run_v2_service" "backend" {
 }
 
 # Frontend Cloud Run Service
+# Only created when frontend_platform = "cloudrun"
 resource "google_cloud_run_v2_service" "frontend" {
+  count    = var.frontend_platform == "cloudrun" ? 1 : 0
   provider = google-beta
 
   project  = google_project.default.project_id
@@ -248,13 +250,14 @@ resource "google_cloud_run_v2_service_iam_member" "backend_public" {
   member   = "allUsers"
 }
 
-# Allow unauthenticated access to frontend
+# Allow unauthenticated access to frontend (only when using Cloud Run)
 resource "google_cloud_run_v2_service_iam_member" "frontend_public" {
+  count    = var.frontend_platform == "cloudrun" ? 1 : 0
   provider = google-beta
 
   project  = google_project.default.project_id
   location = var.region
-  name     = google_cloud_run_v2_service.frontend.name
+  name     = google_cloud_run_v2_service.frontend[0].name
   role     = "roles/run.invoker"
   member   = "allUsers"
 }

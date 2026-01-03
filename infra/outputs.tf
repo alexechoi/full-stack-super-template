@@ -18,8 +18,18 @@ output "backend_url" {
 }
 
 output "frontend_url" {
-  description = "The URL of the frontend Cloud Run service"
-  value       = google_cloud_run_v2_service.frontend.uri
+  description = "The URL of the frontend service (Cloud Run, Vercel, or Netlify)"
+  value = (
+    var.frontend_platform == "cloudrun" ? google_cloud_run_v2_service.frontend[0].uri :
+    var.frontend_platform == "vercel" ? (length(vercel_project.frontend) > 0 ? "https://${vercel_project.frontend[0].name}.vercel.app" : null) :
+    var.frontend_platform == "netlify" ? (length(netlify_site.frontend) > 0 ? "https://${netlify_site.frontend[0].name}.netlify.app" : null) :
+    null
+  )
+}
+
+output "frontend_platform" {
+  description = "The platform where the frontend is deployed"
+  value       = var.frontend_platform
 }
 
 # Artifact Registry

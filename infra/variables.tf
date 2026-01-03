@@ -87,3 +87,40 @@ variable "fcm_vapid_key" {
   sensitive   = true
 }
 
+# =============================================================================
+# Frontend Deployment Platform
+# =============================================================================
+
+variable "frontend_platform" {
+  description = "Platform to deploy the frontend. Options: 'cloudrun' (default), 'vercel', 'netlify'"
+  type        = string
+  default     = "cloudrun"
+
+  validation {
+    condition     = contains(["cloudrun", "vercel", "netlify"], var.frontend_platform)
+    error_message = "frontend_platform must be one of: cloudrun, vercel, netlify"
+  }
+}
+
+# Vercel Configuration (required if frontend_platform = "vercel")
+variable "vercel_api_token" {
+  description = "Vercel API token. Get from: https://vercel.com/account/tokens"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "vercel_org_id" {
+  description = "Vercel organization/team ID. Find in Vercel dashboard settings."
+  type        = string
+  default     = ""
+}
+
+# Netlify Configuration (required if frontend_platform = "netlify")
+variable "netlify_token" {
+  description = "Netlify personal access token. Get from: https://app.netlify.com/user/applications#personal-access-tokens"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
