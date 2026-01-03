@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   OAuthProvider,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
@@ -53,4 +54,8 @@ export async function signOut(): Promise<void> {
 
 export function getCurrentUser() {
   return auth.currentUser;
+}
+
+export async function sendPasswordResetEmail(email: string): Promise<void> {
+  return firebaseSendPasswordResetEmail(auth, email);
 }
