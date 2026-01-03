@@ -124,3 +124,9 @@ variable "netlify_token" {
   sensitive   = true
 }
 
+variable "netlify_site_id" {
+  description = "Netlify Site ID. Create the site in the Netlify UI first, then find the ID in Site Settings > General > Site ID"
+  type        = string
+  default     = ""
+}
+

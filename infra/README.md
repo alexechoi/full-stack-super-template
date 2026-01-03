@@ -128,19 +128,28 @@ Terraform will:
 
 ### Option 3: Netlify
 
-1. Get a Netlify access token from [app.netlify.com/user/applications](https://app.netlify.com/user/applications#personal-access-tokens)
-2. Configure in `terraform.tfvars`:
+1. **Create the site manually** in the [Netlify UI](https://app.netlify.com):
+   - Click "Add new site" → "Import an existing project"
+   - Connect to your GitHub repo
+   - Set base directory to `frontend`
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+2. Copy the **Site ID** from Site Settings → General → Site ID
+3. Get a Netlify access token from [app.netlify.com/user/applications](https://app.netlify.com/user/applications#personal-access-tokens)
+4. Configure in `terraform.tfvars`:
 
 ```hcl
 frontend_platform = "netlify"
 netlify_token     = "your-netlify-token"
+netlify_site_id   = "your-site-id"  # From step 2
 ```
 
 Terraform will:
 
-- Create a Netlify site linked to your GitHub repo
-- Set all Firebase environment variables automatically
+- Configure all Firebase environment variables on your existing site
 - Inject the Firebase service account for API route authentication
+
+> **Note:** The Netlify Terraform provider doesn't support creating sites, so you must create the site manually first. Terraform manages environment variables only.
 
 ### Environment Variables
 

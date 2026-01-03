@@ -50,5 +50,8 @@ vercel_api_token = ""
 vercel_org_id    = ""
 
 # Netlify Configuration (required if frontend_platform = "netlify")
-# Get token from: https://app.netlify.com/user/applications#personal-access-tokens
-netlify_token = ""
+# 1. Create the site manually in the Netlify UI (https://app.netlify.com)
+# 2. Get your token from: https://app.netlify.com/user/applications#personal-access-tokens
+# 3. Find Site ID in: Site Settings > General > Site ID
+netlify_token   = ""
+netlify_site_id = ""
