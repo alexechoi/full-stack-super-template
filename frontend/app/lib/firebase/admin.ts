@@ -13,11 +13,11 @@
 
 import {
   type App,
-  type ServiceAccount,
   cert,
   getApp,
   getApps,
   initializeApp,
+  type ServiceAccount,
 } from "firebase-admin/app";
 import { type DecodedIdToken, getAuth } from "firebase-admin/auth";
 
