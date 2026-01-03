@@ -46,12 +46,15 @@ frontend_platform = "cloudrun"
 # Vercel Configuration (required if frontend_platform = "vercel")
 # Get API token from: https://vercel.com/account/tokens
 # Find org/team ID in Vercel dashboard settings
-vercel_api_token = ""
+# Replace API token below
+vercel_api_token = "000000000000000000000000"
 vercel_org_id    = ""
 
 # Netlify Configuration (required if frontend_platform = "netlify")
 # 1. Create the site manually in the Netlify UI (https://app.netlify.com)
 # 2. Get your token from: https://app.netlify.com/user/applications#personal-access-tokens
 # 3. Find Site ID in: Site Settings > General > Site ID
-netlify_token   = ""
-netlify_site_id = ""
+# 4. Team slug is from your Netlify URL: app.netlify.com/teams/YOUR-TEAM-SLUG
+netlify_token     = ""
+netlify_site_id   = ""
+netlify_team_slug = ""

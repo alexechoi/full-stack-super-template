@@ -141,7 +141,8 @@ Terraform will:
 ```hcl
 frontend_platform = "netlify"
 netlify_token     = "your-netlify-token"
-netlify_site_id   = "your-site-id"  # From step 2
+netlify_site_id   = "your-site-id"    # From step 2
+netlify_team_slug = "your-team-slug"  # From your Netlify URL
 ```
 
 Terraform will:

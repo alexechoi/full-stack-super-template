@@ -31,10 +31,10 @@ resource "netlify_environment_variable" "api_url" {
   key     = "NEXT_PUBLIC_API_URL"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = google_cloud_run_v2_service.backend.uri
     context = "all"
-  }
+  }]
 }
 
 resource "netlify_environment_variable" "firebase_api_key" {
@@ -44,10 +44,10 @@ resource "netlify_environment_variable" "firebase_api_key" {
   key     = "NEXT_PUBLIC_FIREBASE_API_KEY"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = data.google_firebase_web_app_config.default.api_key
     context = "all"
-  }
+  }]
 }
 
 resource "netlify_environment_variable" "firebase_auth_domain" {
@@ -57,10 +57,10 @@ resource "netlify_environment_variable" "firebase_auth_domain" {
   key     = "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = data.google_firebase_web_app_config.default.auth_domain
     context = "all"
-  }
+  }]
 }
 
 resource "netlify_environment_variable" "firebase_project_id" {
@@ -70,10 +70,10 @@ resource "netlify_environment_variable" "firebase_project_id" {
   key     = "NEXT_PUBLIC_FIREBASE_PROJECT_ID"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = var.project_id
     context = "all"
-  }
+  }]
 }
 
 resource "netlify_environment_variable" "firebase_storage_bucket" {
@@ -83,10 +83,10 @@ resource "netlify_environment_variable" "firebase_storage_bucket" {
   key     = "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = data.google_firebase_web_app_config.default.storage_bucket
     context = "all"
-  }
+  }]
 }
 
 resource "netlify_environment_variable" "firebase_messaging_sender_id" {
@@ -96,10 +96,10 @@ resource "netlify_environment_variable" "firebase_messaging_sender_id" {
   key     = "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = data.google_firebase_web_app_config.default.messaging_sender_id
     context = "all"
-  }
+  }]
 }
 
 resource "netlify_environment_variable" "firebase_app_id" {
@@ -109,10 +109,10 @@ resource "netlify_environment_variable" "firebase_app_id" {
   key     = "NEXT_PUBLIC_FIREBASE_APP_ID"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = google_firebase_web_app.default.app_id
     context = "all"
-  }
+  }]
 }
 
 # Firebase service account for API route token verification (sensitive)
@@ -123,10 +123,10 @@ resource "netlify_environment_variable" "firebase_service_account" {
   key     = "FIREBASE_SERVICE_ACCOUNT_JSON"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = base64decode(google_service_account_key.firebase_admin.private_key)
     context = "all"
-  }
+  }]
 }
 
 # VAPID key for push notifications (if configured)
@@ -137,9 +137,9 @@ resource "netlify_environment_variable" "vapid_key" {
   key     = "NEXT_PUBLIC_FIREBASE_VAPID_KEY"
   scopes  = ["builds", "functions", "runtime"]
 
-  values {
+  values = [{
     value   = var.fcm_vapid_key
     context = "all"
-  }
+  }]
 }
 
