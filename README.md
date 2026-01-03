@@ -121,6 +121,10 @@ fcm_vapid_key = "your-vapid-key"
 # Frontend platform (default: cloudrun)
 frontend_platform = "vercel"  # or "netlify"
 vercel_api_token  = "your-token"
+
+# For Netlify: create site in UI first, then provide the site ID
+# netlify_token   = "your-token"
+# netlify_site_id = "your-site-id"
 ```
 
 ### iOS Push Notifications (APNs)

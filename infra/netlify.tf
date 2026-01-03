@@ -1,35 +1,23 @@
 # Netlify Deployment Configuration
-# Deploys the frontend to Netlify instead of Cloud Run
-# Only created when frontend_platform = "netlify"
+# Manages environment variables for a Netlify site
+# Only used when frontend_platform = "netlify"
+#
+# PREREQUISITE: Create the Netlify site manually in the Netlify UI first:
+#   1. Go to https://app.netlify.com and create a new site
+#   2. Connect it to your GitHub repo (frontend directory)
+#   3. Copy the Site ID from Site Settings > General > Site ID
+#   4. Set netlify_site_id in terraform.tfvars
+#
+# Terraform will then manage environment variables for the site.
 
 # =============================================================================
-# Netlify Site
+# Netlify Site (Data Source - references existing site)
 # =============================================================================
 
-resource "netlify_site" "frontend" {
+data "netlify_site" "frontend" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  name = "${var.project_id}-frontend"
-
-  repo {
-    provider    = "github"
-    repo_path   = var.github_repo
-    repo_branch = "main"
-
-    # Build settings for Next.js
-    dir           = "frontend"
-    cmd           = "npm run build"
-    deploy_key_id = ""
-  }
-
-  build_settings {
-    allowed_branches = ["main"]
-  }
-
-  depends_on = [
-    google_firebase_web_app.default,
-    google_cloud_run_v2_service.backend,
-  ]
+  id = var.netlify_site_id
 }
 
 # =============================================================================
@@ -39,7 +27,7 @@ resource "netlify_site" "frontend" {
 resource "netlify_environment_variable" "api_url" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "NEXT_PUBLIC_API_URL"
   scopes  = ["builds", "functions", "runtime"]
 
@@ -52,7 +40,7 @@ resource "netlify_environment_variable" "api_url" {
 resource "netlify_environment_variable" "firebase_api_key" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "NEXT_PUBLIC_FIREBASE_API_KEY"
   scopes  = ["builds", "functions", "runtime"]
 
@@ -65,7 +53,7 @@ resource "netlify_environment_variable" "firebase_api_key" {
 resource "netlify_environment_variable" "firebase_auth_domain" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"
   scopes  = ["builds", "functions", "runtime"]
 
@@ -78,7 +66,7 @@ resource "netlify_environment_variable" "firebase_auth_domain" {
 resource "netlify_environment_variable" "firebase_project_id" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "NEXT_PUBLIC_FIREBASE_PROJECT_ID"
   scopes  = ["builds", "functions", "runtime"]
 
@@ -91,7 +79,7 @@ resource "netlify_environment_variable" "firebase_project_id" {
 resource "netlify_environment_variable" "firebase_storage_bucket" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"
   scopes  = ["builds", "functions", "runtime"]
 
@@ -104,7 +92,7 @@ resource "netlify_environment_variable" "firebase_storage_bucket" {
 resource "netlify_environment_variable" "firebase_messaging_sender_id" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"
   scopes  = ["builds", "functions", "runtime"]
 
@@ -117,7 +105,7 @@ resource "netlify_environment_variable" "firebase_messaging_sender_id" {
 resource "netlify_environment_variable" "firebase_app_id" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "NEXT_PUBLIC_FIREBASE_APP_ID"
   scopes  = ["builds", "functions", "runtime"]
 
@@ -131,7 +119,7 @@ resource "netlify_environment_variable" "firebase_app_id" {
 resource "netlify_environment_variable" "firebase_service_account" {
   count = var.frontend_platform == "netlify" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "FIREBASE_SERVICE_ACCOUNT_JSON"
   scopes  = ["builds", "functions", "runtime"]
 
@@ -145,7 +133,7 @@ resource "netlify_environment_variable" "firebase_service_account" {
 resource "netlify_environment_variable" "vapid_key" {
   count = var.frontend_platform == "netlify" && var.fcm_vapid_key != "" ? 1 : 0
 
-  site_id = netlify_site.frontend[0].id
+  site_id = data.netlify_site.frontend[0].id
   key     = "NEXT_PUBLIC_FIREBASE_VAPID_KEY"
   scopes  = ["builds", "functions", "runtime"]
 
