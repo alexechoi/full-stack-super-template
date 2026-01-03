@@ -33,10 +33,13 @@ function DashboardContent() {
   } = usePushNotifications();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [apiTestResult, setApiTestResult] = useState<ApiTestResult | null>(
-    null,
+  const [backendApiResult, setBackendApiResult] =
+    useState<ApiTestResult | null>(null);
+  const [backendApiLoading, setBackendApiLoading] = useState(false);
+  const [nextApiResult, setNextApiResult] = useState<ApiTestResult | null>(
+    null
   );
-  const [apiTestLoading, setApiTestLoading] = useState(false);
+  const [nextApiLoading, setNextApiLoading] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [testNotificationResult, setTestNotificationResult] = useState<
     string | null
@@ -60,20 +63,49 @@ function DashboardContent() {
     fetchUserData();
   }, [user]);
 
-  async function handleTestProtectedRoute() {
-    setApiTestLoading(true);
-    setApiTestResult(null);
+  async function handleTestBackendApi() {
+    setBackendApiLoading(true);
+    setBackendApiResult(null);
 
     try {
       const data = await apiGet("/me");
-      setApiTestResult({ success: true, data });
+      setBackendApiResult({ success: true, data });
     } catch (err) {
-      setApiTestResult({
+      setBackendApiResult({
         success: false,
         error: err instanceof Error ? err.message : "Unknown error",
       });
     } finally {
-      setApiTestLoading(false);
+      setBackendApiLoading(false);
+    }
+  }
+
+  async function handleTestNextApi() {
+    setNextApiLoading(true);
+    setNextApiResult(null);
+
+    try {
+      // Call the Next.js API route directly (same origin)
+      const token = await import("@/app/lib/firebase/config").then((m) =>
+        m.auth.currentUser?.getIdToken()
+      );
+      const response = await fetch("/api/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Request failed");
+      }
+      setNextApiResult({ success: true, data });
+    } catch (err) {
+      setNextApiResult({
+        success: false,
+        error: err instanceof Error ? err.message : "Unknown error",
+      });
+    } finally {
+      setNextApiLoading(false);
     }
   }
 
@@ -175,11 +207,11 @@ function DashboardContent() {
                           try {
                             const result = await apiPost("/notifications/test");
                             setTestNotificationResult(
-                              `✓ ${(result as { message?: string }).message || "Test notification sent!"}`,
+                              `✓ ${(result as { message?: string }).message || "Test notification sent!"}`
                             );
                           } catch (err) {
                             setTestNotificationResult(
-                              `✗ ${err instanceof Error ? err.message : "Failed to send"}`,
+                              `✗ ${err instanceof Error ? err.message : "Failed to send"}`
                             );
                           } finally {
                             setNotificationLoading(false);
@@ -205,7 +237,7 @@ function DashboardContent() {
                           setNotificationLoading(false);
                           if (!success) {
                             setTestNotificationResult(
-                              "✗ Failed to enable notifications. Check console for details.",
+                              "✗ Failed to enable notifications. Check console for details."
                             );
                           }
                         }}
@@ -236,52 +268,113 @@ function DashboardContent() {
               {/* API Test Section */}
               <div className="mt-8 rounded-lg border border-zinc-200 p-6 dark:border-zinc-800">
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                  Backend API Test
+                  API Authentication Tests
                 </h3>
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  Test the protected /me endpoint with your Firebase token
+                  Test protected endpoints with your Firebase token
                 </p>
 
-                <button
-                  onClick={handleTestProtectedRoute}
-                  disabled={apiTestLoading}
-                  className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  {apiTestLoading ? "Testing..." : "Test Protected Route"}
-                </button>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {/* Python Backend Test */}
+                  <div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                    <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Python Backend
+                    </h4>
+                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      FastAPI /me endpoint
+                    </p>
+                    <button
+                      onClick={handleTestBackendApi}
+                      disabled={backendApiLoading}
+                      className="mt-3 w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      {backendApiLoading ? "Testing..." : "Test Backend API"}
+                    </button>
 
-                {apiTestResult && (
-                  <div
-                    className={`mt-4 rounded-lg p-4 ${
-                      apiTestResult.success
-                        ? "bg-green-50 dark:bg-green-900/20"
-                        : "bg-red-50 dark:bg-red-900/20"
-                    }`}
-                  >
-                    <div
-                      className={`text-sm font-medium ${
-                        apiTestResult.success
-                          ? "text-green-800 dark:text-green-200"
-                          : "text-red-800 dark:text-red-200"
-                      }`}
-                    >
-                      {apiTestResult.success ? "✓ Success" : "✗ Failed"}
-                    </div>
-                    <pre
-                      className={`mt-2 overflow-auto text-xs ${
-                        apiTestResult.success
-                          ? "text-green-700 dark:text-green-300"
-                          : "text-red-700 dark:text-red-300"
-                      }`}
-                    >
-                      {JSON.stringify(
-                        apiTestResult.data || apiTestResult.error,
-                        null,
-                        2,
-                      )}
-                    </pre>
+                    {backendApiResult && (
+                      <div
+                        className={`mt-3 rounded-lg p-3 ${
+                          backendApiResult.success
+                            ? "bg-green-50 dark:bg-green-900/20"
+                            : "bg-red-50 dark:bg-red-900/20"
+                        }`}
+                      >
+                        <div
+                          className={`text-xs font-medium ${
+                            backendApiResult.success
+                              ? "text-green-800 dark:text-green-200"
+                              : "text-red-800 dark:text-red-200"
+                          }`}
+                        >
+                          {backendApiResult.success ? "✓ Success" : "✗ Failed"}
+                        </div>
+                        <pre
+                          className={`mt-1 overflow-auto text-xs ${
+                            backendApiResult.success
+                              ? "text-green-700 dark:text-green-300"
+                              : "text-red-700 dark:text-red-300"
+                          }`}
+                        >
+                          {JSON.stringify(
+                            backendApiResult.data || backendApiResult.error,
+                            null,
+                            2
+                          )}
+                        </pre>
+                      </div>
+                    )}
                   </div>
-                )}
+
+                  {/* Next.js API Test */}
+                  <div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                    <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Next.js API Route
+                    </h4>
+                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      /api/me endpoint
+                    </p>
+                    <button
+                      onClick={handleTestNextApi}
+                      disabled={nextApiLoading}
+                      className="mt-3 w-full rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-700 disabled:opacity-50"
+                    >
+                      {nextApiLoading ? "Testing..." : "Test Next.js API"}
+                    </button>
+
+                    {nextApiResult && (
+                      <div
+                        className={`mt-3 rounded-lg p-3 ${
+                          nextApiResult.success
+                            ? "bg-green-50 dark:bg-green-900/20"
+                            : "bg-red-50 dark:bg-red-900/20"
+                        }`}
+                      >
+                        <div
+                          className={`text-xs font-medium ${
+                            nextApiResult.success
+                              ? "text-green-800 dark:text-green-200"
+                              : "text-red-800 dark:text-red-200"
+                          }`}
+                        >
+                          {nextApiResult.success ? "✓ Success" : "✗ Failed"}
+                        </div>
+                        <pre
+                          className={`mt-1 overflow-auto text-xs ${
+                            nextApiResult.success
+                              ? "text-green-700 dark:text-green-300"
+                              : "text-red-700 dark:text-red-300"
+                          }`}
+                        >
+                          {JSON.stringify(
+                            nextApiResult.data || nextApiResult.error,
+                            null,
+                            2
+                          )}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </>
           )}
