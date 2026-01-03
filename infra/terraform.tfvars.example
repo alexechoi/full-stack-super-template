@@ -31,3 +31,24 @@ expo_android_package_name = ""
 # Optional: Web Push Notifications
 # Get VAPID key from Firebase Console: Project Settings > Cloud Messaging > Web Push certificates
 fcm_vapid_key = ""
+
+# =============================================================================
+# Frontend Deployment Platform
+# =============================================================================
+# Choose where to deploy the frontend. Options:
+#   - "cloudrun" (default): Deploy to Google Cloud Run
+#   - "vercel": Deploy to Vercel
+#   - "netlify": Deploy to Netlify
+#
+# The backend always runs on Cloud Run. Only the frontend can be deployed elsewhere.
+frontend_platform = "cloudrun"
+
+# Vercel Configuration (required if frontend_platform = "vercel")
+# Get API token from: https://vercel.com/account/tokens
+# Find org/team ID in Vercel dashboard settings
+vercel_api_token = ""
+vercel_org_id    = ""
+
+# Netlify Configuration (required if frontend_platform = "netlify")
+# Get token from: https://app.netlify.com/user/applications#personal-access-tokens
+netlify_token = ""
