@@ -46,7 +46,8 @@ frontend_platform = "cloudrun"
 # Vercel Configuration (required if frontend_platform = "vercel")
 # Get API token from: https://vercel.com/account/tokens
 # Find org/team ID in Vercel dashboard settings
-vercel_api_token = ""
+# Replace API token below
+vercel_api_token = "000000000000000000000000"
 vercel_org_id    = ""
 
 # Netlify Configuration (required if frontend_platform = "netlify")

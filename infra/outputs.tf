@@ -22,7 +22,7 @@ output "frontend_url" {
   value = (
     var.frontend_platform == "cloudrun" ? google_cloud_run_v2_service.frontend[0].uri :
     var.frontend_platform == "vercel" ? (length(vercel_project.frontend) > 0 ? "https://${vercel_project.frontend[0].name}.vercel.app" : null) :
-    var.frontend_platform == "netlify" ? (length(netlify_site.frontend) > 0 ? "https://${netlify_site.frontend[0].name}.netlify.app" : null) :
+    var.frontend_platform == "netlify" ? (length(data.netlify_site.frontend) > 0 ? "https://${data.netlify_site.frontend[0].name}.netlify.app" : null) :
     null
   )
 }
