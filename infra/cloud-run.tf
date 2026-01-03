@@ -190,6 +190,18 @@ resource "google_cloud_run_v2_service" "frontend" {
         }
       }
 
+      # Firebase service account credentials from Secret Manager
+      # Used by Next.js API routes to verify Firebase tokens
+      env {
+        name = "FIREBASE_SERVICE_ACCOUNT_JSON"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.firebase_service_account.secret_id
+            version = "latest"
+          }
+        }
+      }
+
       # Startup probe
       startup_probe {
         http_get {
@@ -212,11 +224,15 @@ resource "google_cloud_run_v2_service" "frontend" {
     google_project_service.cloudrun,
     google_artifact_registry_repository.docker,
     google_firebase_web_app.default,
+    google_secret_manager_secret_version.firebase_service_account,
+    google_secret_manager_secret_iam_member.cloudrun_firebase_secret,
   ]
 
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      # Allow env vars to be updated independently via CI/CD
+      template[0].containers[0].env,
     ]
   }
 }
