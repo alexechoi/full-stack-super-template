@@ -52,5 +52,7 @@ provider "vercel" {
 provider "netlify" {
   # Token from NETLIFY_TOKEN env var or netlify_token variable
   token = var.netlify_token != "" ? var.netlify_token : null
+  # Team slug is required for managing environment variables
+  default_team_slug = var.netlify_team_slug != "" ? var.netlify_team_slug : null
 }
 

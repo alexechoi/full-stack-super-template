@@ -130,3 +130,9 @@ variable "netlify_site_id" {
   default     = ""
 }
 
+variable "netlify_team_slug" {
+  description = "Netlify team slug (from your Netlify team URL, e.g., app.netlify.com/teams/YOUR-TEAM-SLUG)"
+  type        = string
+  default     = ""
+}
+
