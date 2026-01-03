@@ -1,3 +1,4 @@
+import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import {
   collection,
   doc,
@@ -6,7 +7,6 @@ import {
   setDoc,
   updateDoc,
 } from "@react-native-firebase/firestore";
-import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 
 import { db } from "./config";
 

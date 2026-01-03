@@ -12,18 +12,18 @@ import {
   View,
 } from "react-native";
 
-import { signInWithEmail } from "@/lib/firebase/auth";
+import { sendPasswordResetEmail } from "@/lib/firebase/auth";
 import { getFirebaseErrorMessage } from "@/lib/firebase/errors";
 
-export default function LoginScreen() {
+export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
-    if (!email || !password) {
-      setError("Please fill in all fields");
+    if (!email) {
+      setError("Please enter your email address");
       return;
     }
 
@@ -31,13 +31,45 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      await signInWithEmail(email, password);
-      router.replace("/(app)");
+      await sendPasswordResetEmail(email);
+      setSuccess(true);
     } catch (err) {
       setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
+  }
+
+  if (success) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Check your email</Text>
+            <Text style={styles.subtitle}>
+              We&apos;ve sent a password reset link to {email}
+            </Text>
+          </View>
+
+          <View style={styles.successContainer}>
+            <Text style={styles.successText}>
+              Click the link in the email to reset your password. If you
+              don&apos;t see it, check your spam folder.
+            </Text>
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={() => router.replace("/(auth)/login")}
+          >
+            <Text style={styles.buttonText}>Back to sign in</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -51,8 +83,10 @@ export default function LoginScreen() {
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome back</Text>
-            <Text style={styles.subtitle}>Sign in to your account</Text>
+            <Text style={styles.title}>Reset password</Text>
+            <Text style={styles.subtitle}>
+              Enter your email and we&apos;ll send you a reset link
+            </Text>
           </View>
 
           {error ? (
@@ -74,26 +108,7 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect={false}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Password</Text>
-                <Link href="/(auth)/forgot-password" asChild>
-                  <Pressable>
-                    <Text style={styles.forgotLink}>Forgot password?</Text>
-                  </Pressable>
-                </Link>
-              </View>
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="••••••••"
-                placeholderTextColor="#71717a"
-                secureTextEntry
-                autoComplete="password"
+                autoFocus
               />
             </View>
 
@@ -109,16 +124,16 @@ export default function LoginScreen() {
               {loading ? (
                 <ActivityIndicator color="#09090b" />
               ) : (
-                <Text style={styles.buttonText}>Sign in</Text>
+                <Text style={styles.buttonText}>Send reset link</Text>
               )}
             </Pressable>
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Don&apos;t have an account? </Text>
-            <Link href="/(auth)/signup" asChild>
+            <Text style={styles.footerText}>Remember your password? </Text>
+            <Link href="/(auth)/login" asChild>
               <Pressable>
-                <Text style={styles.footerLink}>Sign up</Text>
+                <Text style={styles.footerLink}>Sign in</Text>
               </Pressable>
             </Link>
           </View>
@@ -158,6 +173,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#a1a1aa",
     marginTop: 8,
+    textAlign: "center",
   },
   errorContainer: {
     backgroundColor: "rgba(239, 68, 68, 0.1)",
@@ -170,25 +186,28 @@ const styles = StyleSheet.create({
     color: "#f87171",
     fontSize: 14,
   },
+  successContainer: {
+    backgroundColor: "rgba(34, 197, 94, 0.1)",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 24,
+  },
+  successText: {
+    color: "#4ade80",
+    fontSize: 14,
+    lineHeight: 20,
+  },
   form: {
     gap: 16,
   },
   inputGroup: {
     gap: 6,
   },
-  labelRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   label: {
     fontSize: 14,
     fontWeight: "500",
     color: "#d4d4d8",
-  },
-  forgotLink: {
-    fontSize: 13,
-    color: "#a1a1aa",
   },
   input: {
     backgroundColor: "#18181b",

@@ -1,10 +1,11 @@
+import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged as firebaseOnAuthStateChanged,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from "@react-native-firebase/auth";
-import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 
 import { auth } from "./config";
 
@@ -49,4 +50,11 @@ export function onAuthStateChanged(
   callback: (user: FirebaseAuthTypes.User | null) => void,
 ): () => void {
   return firebaseOnAuthStateChanged(auth, callback);
+}
+
+/**
+ * Send a password reset email to the user
+ */
+export async function sendPasswordResetEmail(email: string): Promise<void> {
+  return firebaseSendPasswordResetEmail(auth, email);
 }
