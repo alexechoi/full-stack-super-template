@@ -37,7 +37,7 @@ function DashboardContent() {
     useState<ApiTestResult | null>(null);
   const [backendApiLoading, setBackendApiLoading] = useState(false);
   const [nextApiResult, setNextApiResult] = useState<ApiTestResult | null>(
-    null
+    null,
   );
   const [nextApiLoading, setNextApiLoading] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
@@ -87,7 +87,7 @@ function DashboardContent() {
     try {
       // Call the Next.js API route directly (same origin)
       const token = await import("@/app/lib/firebase/config").then((m) =>
-        m.auth.currentUser?.getIdToken()
+        m.auth.currentUser?.getIdToken(),
       );
       const response = await fetch("/api/me", {
         headers: {
@@ -207,11 +207,11 @@ function DashboardContent() {
                           try {
                             const result = await apiPost("/notifications/test");
                             setTestNotificationResult(
-                              `✓ ${(result as { message?: string }).message || "Test notification sent!"}`
+                              `✓ ${(result as { message?: string }).message || "Test notification sent!"}`,
                             );
                           } catch (err) {
                             setTestNotificationResult(
-                              `✗ ${err instanceof Error ? err.message : "Failed to send"}`
+                              `✗ ${err instanceof Error ? err.message : "Failed to send"}`,
                             );
                           } finally {
                             setNotificationLoading(false);
@@ -237,7 +237,7 @@ function DashboardContent() {
                           setNotificationLoading(false);
                           if (!success) {
                             setTestNotificationResult(
-                              "✗ Failed to enable notifications. Check console for details."
+                              "✗ Failed to enable notifications. Check console for details.",
                             );
                           }
                         }}
@@ -318,7 +318,7 @@ function DashboardContent() {
                           {JSON.stringify(
                             backendApiResult.data || backendApiResult.error,
                             null,
-                            2
+                            2,
                           )}
                         </pre>
                       </div>
@@ -368,7 +368,7 @@ function DashboardContent() {
                           {JSON.stringify(
                             nextApiResult.data || nextApiResult.error,
                             null,
-                            2
+                            2,
                           )}
                         </pre>
                       </div>
