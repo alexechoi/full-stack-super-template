@@ -42,7 +42,8 @@ terraform output -json firebase_android_config | jq -r '.config_file_contents' |
 # 6. Get Firebase Admin SDK credentials for backend (local development)
 terraform output -raw firebase_service_account_json > ../backend/firebase-service-account.json
 
-# 7. Configure GitHub Actions secrets
+# 7. (Optional) If you set github_token, secrets are configured automatically!
+# Otherwise, manually configure GitHub Actions:
 terraform output workload_identity_provider  # → GCP_WORKLOAD_IDENTITY_PROVIDER secret
 terraform output github_actions_service_account  # → GCP_SERVICE_ACCOUNT secret
 ```
@@ -163,12 +164,39 @@ Regardless of platform, Terraform automatically configures these environment var
 | `FIREBASE_SERVICE_ACCOUNT_JSON`  | Firebase Admin credentials for API routes   |
 | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Push notification VAPID key (if configured) |
 
+## GitHub Actions CI/CD Setup
+
+The deploy workflow needs 4 values configured in your GitHub repository. You have two options:
+
+### Option A: Automatic (Recommended)
+
+Set `github_token` in your `terraform.tfvars` and Terraform will configure everything automatically:
+
+```hcl
+github_token = "ghp_xxxxxxxxxxxx"  # Needs 'repo' scope
+```
+
+Get a token from [github.com/settings/tokens](https://github.com/settings/tokens) with **repo** scope.
+
+### Option B: Manual
+
+If you don't provide a token, set these manually in GitHub (Settings → Secrets and variables → Actions):
+
+**Variables:**
+- `GCP_PROJECT_ID` → `terraform output project_id`
+- `GCP_REGION` → `terraform output -raw` (your region, e.g., `us-central1`)
+
+**Secrets:**
+- `GCP_WORKLOAD_IDENTITY_PROVIDER` → `terraform output workload_identity_provider`
+- `GCP_SERVICE_ACCOUNT` → `terraform output github_actions_service_account`
+
 ## What Gets Created
 
 - GCP Project with Firebase, Firestore, Cloud Run, Artifact Registry
 - Cloud Run backend service
 - Frontend on Cloud Run, Vercel, or Netlify (based on `frontend_platform`)
 - GitHub Actions Workload Identity for keyless CI/CD
+- GitHub Actions variables/secrets (if `github_token` provided)
 - Firebase iOS and Android apps (optional, for Expo mobile app)
 - Firebase Admin SDK service account with credentials in Secret Manager
 
