@@ -10,6 +10,14 @@ billing_account = "XXXXXX-XXXXXX-XXXXXX"
 # Required: GitHub Repository (for Workload Identity Federation)
 github_repo = "your-org/your-repo"
 
+# Optional: GitHub Token for automatic CI/CD setup
+# If provided, Terraform will automatically set the GitHub Actions variables/secrets
+# needed for the deploy workflow. Requires 'repo' scope.
+# Get a token from: https://github.com/settings/tokens
+# Leave empty to skip (you'll need to set GCP_PROJECT_ID, GCP_REGION, 
+# GCP_WORKLOAD_IDENTITY_PROVIDER, and GCP_SERVICE_ACCOUNT manually)
+github_token = ""
+
 # Optional: Google OAuth for Firebase Auth
 # Get these from Google Cloud Console > APIs & Services > Credentials
 oauth_client_id     = ""

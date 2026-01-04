@@ -27,6 +27,13 @@ variable "github_repo" {
   type        = string
 }
 
+variable "github_token" {
+  description = "GitHub personal access token for setting repository secrets/variables. Requires 'repo' scope. Leave empty to skip GitHub configuration (you'll need to set secrets manually)."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 # Firebase Auth Configuration
 variable "oauth_client_id" {
   description = "Google OAuth client ID for Firebase Auth"

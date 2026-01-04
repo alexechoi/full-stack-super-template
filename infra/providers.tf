@@ -16,6 +16,10 @@ terraform {
       source  = "netlify/netlify"
       version = ">= 0.2.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = ">= 6.0.0"
+    }
   }
 }
 
@@ -54,5 +58,20 @@ provider "netlify" {
   token = var.netlify_token != "" ? var.netlify_token : null
   # Team slug is required for managing environment variables
   default_team_slug = var.netlify_team_slug != "" ? var.netlify_team_slug : null
+}
+
+# =============================================================================
+# GitHub Provider (for setting repository secrets/variables)
+# =============================================================================
+
+provider "github" {
+  # Token from GITHUB_TOKEN env var or github_token variable
+  token = var.github_token != "" ? var.github_token : null
+  owner = local.github_owner
+}
+
+locals {
+  # Extract owner from "owner/repo" format
+  github_owner = element(split("/", var.github_repo), 0)
 }
 
