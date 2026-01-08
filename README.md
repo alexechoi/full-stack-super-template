@@ -22,6 +22,11 @@ Production-ready template with web frontend, mobile app, API backend, and infras
 Frontend deploys to **Cloud Run**, **Vercel**, or **Netlify** (configurable).
 
 ---
+# Example project
+
+Here is an example of this template used in a real project: [https://github.com/alexechoi/bookmarks-app](https://github.com/alexechoi/bookmarks-app)
+
+---
 
 ## Quickstart
 
