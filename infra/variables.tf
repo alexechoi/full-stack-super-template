@@ -34,41 +34,69 @@ variable "github_token" {
   sensitive   = true
 }
 
-# Firebase Auth Configuration
+# =============================================================================
+# Firebase Auth - Google Sign-In Configuration
+# =============================================================================
+# Google Sign-In is AUTO-ENABLED by default using Firebase's built-in OAuth.
+# Optionally provide custom OAuth credentials for a branded consent screen.
+
+variable "oauth_support_email" {
+  description = "Support email for OAuth consent screen (required for Google Sign-In). Use a Google account email."
+  type        = string
+}
+
 variable "oauth_client_id" {
-  description = "Google OAuth client ID for Firebase Auth"
+  description = "Optional: Custom Google OAuth client ID. Leave empty to use auto-created OAuth client."
   type        = string
   default     = ""
 }
 
 variable "oauth_client_secret" {
-  description = "Google OAuth client secret for Firebase Auth"
+  description = "Optional: Custom Google OAuth client secret. Required if oauth_client_id is provided."
   type        = string
   default     = ""
   sensitive   = true
 }
 
+# =============================================================================
+# Firebase Auth - Apple Sign-In Configuration
+# =============================================================================
+# Apple Sign-In requires credentials from Apple Developer Console.
+# To enable, provide all apple_* variables below.
+#
+# Setup steps:
+# 1. Create an App ID with Sign In with Apple capability
+# 2. Create a Services ID for web authentication
+# 3. Create a Sign In with Apple key
+# See: https://firebase.google.com/docs/auth/ios/apple
+
 variable "apple_team_id" {
-  description = "Apple Developer Team ID for Apple Sign-In"
+  description = "Apple Developer Team ID (found in Apple Developer account membership)"
+  type        = string
+  default     = ""
+}
+
+variable "apple_services_id" {
+  description = "Apple Services ID (client_id) - create in Apple Developer Console > Identifiers > Services IDs"
   type        = string
   default     = ""
 }
 
 variable "apple_key_id" {
-  description = "Apple Sign-In Key ID"
+  description = "Apple Sign-In Key ID - create in Apple Developer Console > Keys"
   type        = string
   default     = ""
 }
 
 variable "apple_private_key" {
-  description = "Apple Sign-In private key content"
+  description = "Apple Sign-In private key content (.p8 file contents)"
   type        = string
   default     = ""
   sensitive   = true
 }
 
 variable "apple_bundle_id" {
-  description = "Apple app bundle ID for Apple Sign-In"
+  description = "Apple app bundle ID for iOS app (e.g., com.yourcompany.app)"
   type        = string
   default     = ""
 }

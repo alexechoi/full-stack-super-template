@@ -143,3 +143,15 @@ resource "google_project_service" "fcm" {
   depends_on = [google_project_service.serviceusage]
 }
 
+# Enable Identity-Aware Proxy API (for OAuth consent screen and Google Sign-In)
+resource "google_project_service" "iap" {
+  provider = google-beta
+
+  project = google_project.default.project_id
+  service = "iap.googleapis.com"
+
+  disable_on_destroy = false
+
+  depends_on = [google_project_service.serviceusage]
+}
+

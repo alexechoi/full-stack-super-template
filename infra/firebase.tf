@@ -95,10 +95,59 @@ resource "google_identity_platform_config" "default" {
   ]
 }
 
-# Enable Google Sign-In provider
-resource "google_identity_platform_default_supported_idp_config" "google" {
+# =============================================================================
+# Google Sign-In Provider
+# =============================================================================
+# Auto-enabled using Firebase's built-in Google OAuth support.
+# This creates an OAuth client automatically managed by Google/Firebase.
+# For custom OAuth client (e.g., for branded consent screen), provide
+# oauth_client_id and oauth_client_secret variables.
+
+# Create OAuth brand (consent screen) for Google Sign-In
+resource "google_iap_brand" "default" {
   provider = google-beta
 
+  project           = google_project.default.project_id
+  support_email     = var.oauth_support_email
+  application_title = var.project_name
+
+  depends_on = [
+    google_project_service.iap,
+  ]
+}
+
+# Create OAuth client for Google Sign-In (auto-created by Firebase)
+resource "google_iap_client" "google_sign_in" {
+  provider = google-beta
+
+  # Only create if custom OAuth credentials are NOT provided
+  count = var.oauth_client_id == "" ? 1 : 0
+
+  brand        = google_iap_brand.default.name
+  display_name = "Firebase Google Sign-In"
+}
+
+# Enable Google Sign-In provider with auto-created OAuth client
+resource "google_identity_platform_default_supported_idp_config" "google_auto" {
+  provider = google-beta
+
+  # Use auto-created OAuth client when custom credentials are NOT provided
+  count = var.oauth_client_id == "" ? 1 : 0
+
+  project       = google_project.default.project_id
+  idp_id        = "google.com"
+  client_id     = google_iap_client.google_sign_in[0].client_id
+  client_secret = google_iap_client.google_sign_in[0].secret
+  enabled       = true
+
+  depends_on = [google_identity_platform_config.default]
+}
+
+# Enable Google Sign-In provider with custom OAuth client
+resource "google_identity_platform_default_supported_idp_config" "google_custom" {
+  provider = google-beta
+
+  # Use custom OAuth client when credentials ARE provided
   count = var.oauth_client_id != "" ? 1 : 0
 
   project       = google_project.default.project_id
@@ -110,7 +159,16 @@ resource "google_identity_platform_default_supported_idp_config" "google" {
   depends_on = [google_identity_platform_config.default]
 }
 
-# Enable Apple Sign-In provider
+# =============================================================================
+# Apple Sign-In Provider
+# =============================================================================
+# Requires Apple Developer account credentials. Apple Sign-In needs:
+# - Apple Team ID (from Apple Developer account)
+# - Service ID (client_id) configured in Apple Developer Console
+# - Key ID and Private Key for Sign In with Apple
+#
+# To enable, provide: apple_services_id, apple_team_id, apple_key_id, apple_private_key
+
 resource "google_identity_platform_default_supported_idp_config" "apple" {
   provider = google-beta
 
@@ -118,7 +176,7 @@ resource "google_identity_platform_default_supported_idp_config" "apple" {
 
   project   = google_project.default.project_id
   idp_id    = "apple.com"
-  client_id = var.apple_bundle_id
+  client_id = var.apple_services_id
   client_secret = jsonencode({
     teamId     = var.apple_team_id
     keyId      = var.apple_key_id

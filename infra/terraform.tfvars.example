@@ -18,17 +18,42 @@ github_repo = "your-org/your-repo"
 # GCP_WORKLOAD_IDENTITY_PROVIDER, and GCP_SERVICE_ACCOUNT manually)
 github_token = ""
 
-# Optional: Google OAuth for Firebase Auth
-# Get these from Google Cloud Console > APIs & Services > Credentials
+# =============================================================================
+# Firebase Auth - Google Sign-In (AUTO-ENABLED)
+# =============================================================================
+# Google Sign-In is automatically enabled using Firebase's built-in OAuth.
+# You just need to provide a support email for the OAuth consent screen.
+# This email must be a Google account (Gmail or Google Workspace).
+
+oauth_support_email = "your-email@gmail.com"
+
+# Optional: Custom OAuth credentials for branded consent screen
+# Only needed if you want a customized consent screen with your logo
+# Get from: Google Cloud Console > APIs & Services > Credentials
 oauth_client_id     = ""
 oauth_client_secret = ""
 
-# Optional: Apple Sign-In for Firebase Auth
-# Get these from Apple Developer Console
-apple_team_id     = ""
-apple_key_id      = ""
-apple_private_key = ""
-apple_bundle_id   = ""
+# =============================================================================
+# Firebase Auth - Apple Sign-In (Optional)
+# =============================================================================
+# To enable Apple Sign-In, you need credentials from Apple Developer Console.
+# 
+# Setup steps:
+# 1. Go to https://developer.apple.com/account
+# 2. Create an App ID with "Sign In with Apple" capability
+# 3. Create a Services ID (this is your client_id for web auth)
+#    - Enable "Sign In with Apple"
+#    - Configure domains and return URLs
+# 4. Create a Key with "Sign In with Apple" enabled
+#    - Download the .p8 file (you can only download once!)
+#    - Note the Key ID
+# 5. Find your Team ID in Membership section
+
+apple_team_id     = ""           # Your 10-character Team ID
+apple_services_id = ""           # Services ID (e.g., com.yourcompany.app.signin)
+apple_key_id      = ""           # Key ID from the key you created
+apple_private_key = ""           # Contents of the .p8 file
+apple_bundle_id   = ""           # iOS app bundle ID (e.g., com.yourcompany.app)
 
 # Optional: Expo Mobile App Configuration
 # These create Firebase iOS and Android apps for the Expo app
