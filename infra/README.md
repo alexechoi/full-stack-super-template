@@ -32,12 +32,12 @@ terraform output -json firebase_config | jq -r '
   "NEXT_PUBLIC_FIREBASE_APP_ID=\(.app_id)"
 ' > ../frontend/.env.local
 
-# 5. Get Firebase config for Expo app (if configured)
+# 5. Get Firebase config for Expo app (only if expo_ios_bundle_id / expo_android_package_name are set)
 # For iOS: Download GoogleService-Info.plist
-terraform output -json firebase_ios_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/GoogleService-Info.plist
+terraform output -json firebase_ios_config | jq -e -r '.config_file_contents' | base64 -d > ../expo-app/GoogleService-Info.plist 2>/dev/null && echo "✓ iOS config saved" || echo "⚠ iOS app not configured (set expo_ios_bundle_id)"
 
 # For Android: Download google-services.json
-terraform output -json firebase_android_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/google-services.json
+terraform output -json firebase_android_config | jq -e -r '.config_file_contents' | base64 -d > ../expo-app/google-services.json 2>/dev/null && echo "✓ Android config saved" || echo "⚠ Android app not configured (set expo_android_package_name)"
 
 # 6. Get Firebase Admin SDK credentials for backend (local development)
 terraform output -raw firebase_service_account_json > ../backend/firebase-service-account.json
@@ -60,12 +60,14 @@ expo_android_package_name = "com.yourcompany.expoapp"
 After running `terraform apply`, download the Firebase config files:
 
 ```bash
-# iOS: GoogleService-Info.plist
-terraform output -json firebase_ios_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/GoogleService-Info.plist
+# iOS: GoogleService-Info.plist (only works if expo_ios_bundle_id was set)
+terraform output -json firebase_ios_config | jq -e -r '.config_file_contents' | base64 -d > ../expo-app/GoogleService-Info.plist
 
-# Android: google-services.json
-terraform output -json firebase_android_config | jq -r '.config_file_contents' | base64 -d > ../expo-app/google-services.json
+# Android: google-services.json (only works if expo_android_package_name was set)
+terraform output -json firebase_android_config | jq -e -r '.config_file_contents' | base64 -d > ../expo-app/google-services.json
 ```
+
+> **Note:** These commands will fail with "null cannot be iterated" if the mobile apps aren't configured. Set `expo_ios_bundle_id` and/or `expo_android_package_name` in your `terraform.tfvars` first.
 
 Then run `npm run prebuild` in the expo-app directory to generate native projects.
 
@@ -190,11 +192,55 @@ If you don't provide a token, set these manually in GitHub (Settings → Secrets
 - `GCP_WORKLOAD_IDENTITY_PROVIDER` → `terraform output workload_identity_provider`
 - `GCP_SERVICE_ACCOUNT` → `terraform output github_actions_service_account`
 
+## Firebase Authentication
+
+Firebase Auth is automatically configured with **Email/Password** and **Google Sign-In** enabled by default.
+
+### Google Sign-In (Auto-Enabled)
+
+Google Sign-In is enabled automatically. Just provide a support email for the OAuth consent screen:
+
+```hcl
+oauth_support_email = "your-email@gmail.com"
+```
+
+Optionally, for a branded consent screen with your logo, create custom OAuth credentials in [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
+
+```hcl
+oauth_client_id     = "your-client-id.apps.googleusercontent.com"
+oauth_client_secret = "your-client-secret"
+```
+
+### Apple Sign-In (Optional)
+
+To enable Apple Sign-In, you need credentials from [Apple Developer Console](https://developer.apple.com/account):
+
+1. **Create an App ID** with "Sign In with Apple" capability
+2. **Create a Services ID** for web authentication:
+   - Enable "Sign In with Apple"
+   - Add your domains and return URLs
+3. **Create a Key** with "Sign In with Apple":
+   - Download the `.p8` file (one-time download!)
+   - Note the Key ID
+4. Find your **Team ID** in the Membership section
+
+Then configure in `terraform.tfvars`:
+
+```hcl
+apple_team_id     = "ABCD123456"                    # 10-char Team ID
+apple_services_id = "com.yourcompany.app.signin"   # Services ID
+apple_key_id      = "KEYID12345"                   # Key ID
+apple_private_key = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+apple_bundle_id   = "com.yourcompany.app"          # iOS bundle ID
+```
+
 ## What Gets Created
 
 - GCP Project with Firebase, Firestore, Cloud Run, Artifact Registry
 - Cloud Run backend service
 - Frontend on Cloud Run, Vercel, or Netlify (based on `frontend_platform`)
+- **Firebase Auth** with Email/Password and Google Sign-In enabled
+- **Apple Sign-In** (if credentials provided)
 - GitHub Actions Workload Identity for keyless CI/CD
 - GitHub Actions variables/secrets (if `github_token` provided)
 - Firebase iOS and Android apps (optional, for Expo mobile app)
